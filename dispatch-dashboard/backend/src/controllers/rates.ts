@@ -1,41 +1,119 @@
-// src/controllers/rates.js
-const { Pool } = require('pg');
-const logger = require('../utils/logger');
+// src/controllers/rates.ts
+import { Request, Response } from 'express';
+import { Pool, QueryResult } from 'pg';
+import { logger } from '../utils/logger';
+import { query } from '../config/backend-database-connection';
 
-// Configure PostgreSQL connection
+// Define interfaces for rate table structure
+interface RateTable {
+  rate_id: number;
+  customer_name: string;
+  destination_city: string;
+  destination_province: string;
+  min_weight_lb: number;
+  weight_per_0_1999lbs: number;
+  weight_per_2000_4999lbs: number;
+  weight_per_5000_9999lbs: number;
+  weight_per_10000_19999lbs: number;
+  weight_per_20000_29999lbs: number;
+  weight_per_30000_39999lbs: number;
+  weight_over_4000lbs: number;
+  tl_rate: number | null;
+  origin_warehouse_id: number;
+  origin_warehouse_name?: string;
+}
+
+interface RateCalculationRequest {
+  originWarehouseId: string;
+  destinationCity: string;
+  destinationProvince: string;
+  weightLbs?: number;
+  isTruckload: boolean;
+  customerName: string;
+}
+
+interface RateCalculationResponse {
+  isTruckload: boolean;
+  rate: number | null;
+  totalCost: number;
+  weightCategory: string;
+  weightLbs?: number;
+  originalLtlCost?: number;
+  rateDetails: {
+    originWarehouseId: string;
+    destinationCity: string;
+    destinationProvince: string;
+    customerName: string;
+    minWeightLb?: number;
+  };
+}
+
+interface CreateRateRequest {
+  customerName: string;
+  destinationCity: string;
+  destinationProvince: string;
+  minWeightLb: number;
+  weightPer0To1999lbs: number;
+  weightPer2000To4999lbs: number;
+  weightPer5000To9999lbs: number;
+  weightPer10000To19999lbs: number;
+  weightPer20000To29999lbs: number;
+  weightPer30000To39999lbs: number;
+  weightPerOver40000lbs: number;
+  tlRate: number | null;
+  originWarehouseId: number;
+}
+
+interface ImportRateRequest {
+  csvData: string;
+}
+
+// Use the shared database connection
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432,
+  port: parseInt(process.env.DB_PORT || '5432'),
 });
 
 /**
  * Calculate shipping rate based on origin, destination, weight, and customer
  */
-const calculateRate = async (req, res) => {
-  const { originWarehouseId, destinationCity, destinationProvince, weightLbs, isTruckload, customerName } = req.body;
+const calculateRate = async (req: Request, res: Response): Promise<void> => {
+  const { 
+    originWarehouseId, 
+    destinationCity, 
+    destinationProvince, 
+    weightLbs, 
+    isTruckload, 
+    customerName 
+  } = req.body as RateCalculationRequest;
   
   // Input validation
   if (!originWarehouseId) {
-    return res.status(400).json({ error: 'Origin warehouse is required' });
+    res.status(400).json({ error: 'Origin warehouse is required' });
+    return;
   }
   
   if (!destinationCity) {
-    return res.status(400).json({ error: 'Destination city is required' });
+    res.status(400).json({ error: 'Destination city is required' });
+    return;
   }
   
   if (!destinationProvince) {
-    return res.status(400).json({ error: 'Destination province is required' });
+    res.status(400).json({ error: 'Destination province is required' });
+    return;
   }
   
   if (!customerName) {
-    return res.status(400).json({ error: 'Customer name is required' });
+    res.status(400).json({ error: 'Customer name is required' });
+    return;
   }
   
   if (!isTruckload && (!weightLbs || weightLbs <= 0)) {
-    return res.status(400).json({ error: 'Valid weight is required for non-truckload shipments' });
+    res.status(400).json({ error: 'Valid weight is required for non-truckload shipments' });
+    return;
   }
   
   try {
@@ -49,7 +127,7 @@ const calculateRate = async (req, res) => {
       LIMIT 1
     `;
     
-    const rateResult = await pool.query(rateQuery, [
+    let rateResult = await query(rateQuery, [
       originWarehouseId,
       destinationCity,
       destinationProvince,
@@ -67,7 +145,7 @@ const calculateRate = async (req, res) => {
         LIMIT 1
       `;
       
-      const provinceRateResult = await pool.query(provinceRateQuery, [
+      const provinceRateResult = await query(provinceRateQuery, [
         originWarehouseId,
         destinationProvince,
         customerName
@@ -84,7 +162,7 @@ const calculateRate = async (req, res) => {
           LIMIT 1
         `;
         
-        const defaultRateResult = await pool.query(defaultRateQuery, [
+        const defaultRateResult = await query(defaultRateQuery, [
           originWarehouseId,
           destinationCity,
           destinationProvince
@@ -101,42 +179,44 @@ const calculateRate = async (req, res) => {
             LIMIT 1
           `;
           
-          const defaultProvinceRateResult = await pool.query(defaultProvinceRateQuery, [
+          const defaultProvinceRateResult = await query(defaultProvinceRateQuery, [
             originWarehouseId,
             destinationProvince
           ]);
           
           if (defaultProvinceRateResult.rows.length === 0) {
-            return res.status(404).json({ 
+            res.status(404).json({ 
               error: 'Rate not found', 
               message: `No shipping rate found for ${originWarehouseId} to ${destinationCity}, ${destinationProvince} for customer ${customerName}` 
             });
+            return;
           }
           
-          rateResult.rows = defaultProvinceRateResult.rows;
+          rateResult = defaultProvinceRateResult;
         } else {
-          rateResult.rows = defaultRateResult.rows;
+          rateResult = defaultRateResult;
         }
       } else {
-        rateResult.rows = provinceRateResult.rows;
+        rateResult = provinceRateResult;
       }
     }
     
-    const rateData = rateResult.rows[0];
+    const rateData = rateResult.rows[0] as RateTable;
     
     // For truckload rates, just return the TL rate
     if (isTruckload) {
       if (!rateData.tl_rate) {
-        return res.status(404).json({ 
+        res.status(404).json({ 
           error: 'Truckload rate not found', 
           message: `No truckload shipping rate found for this route` 
         });
+        return;
       }
       
-      return res.status(200).json({
+      const response: RateCalculationResponse = {
         isTruckload: true,
         rate: null, // No per-pound rate for truckload
-        totalCost: parseFloat(rateData.tl_rate),
+        totalCost: parseFloat(rateData.tl_rate.toString()),
         weightCategory: 'Truckload',
         rateDetails: {
           originWarehouseId,
@@ -144,44 +224,47 @@ const calculateRate = async (req, res) => {
           destinationProvince,
           customerName
         }
-      });
+      };
+      
+      res.status(200).json(response);
+      return;
     }
     
     // For regular LTL shipments, calculate based on weight
-    let rate;
-    let weightCategory;
+    let rate: number;
+    let weightCategory: string;
     
     // Determine which weight bracket the shipment falls into
-    if (weightLbs < 2000) {
-      rate = parseFloat(rateData.weight_per_0_1999lbs);
+    if (weightLbs! < 2000) {
+      rate = parseFloat(rateData.weight_per_0_1999lbs.toString());
       weightCategory = '0-1,999 lbs';
-    } else if (weightLbs < 5000) {
-      rate = parseFloat(rateData.weight_per_2000_4999lbs);
+    } else if (weightLbs! < 5000) {
+      rate = parseFloat(rateData.weight_per_2000_4999lbs.toString());
       weightCategory = '2,000-4,999 lbs';
-    } else if (weightLbs < 10000) {
-      rate = parseFloat(rateData.weight_per_5000_9999lbs);
+    } else if (weightLbs! < 10000) {
+      rate = parseFloat(rateData.weight_per_5000_9999lbs.toString());
       weightCategory = '5,000-9,999 lbs';
-    } else if (weightLbs < 20000) {
-      rate = parseFloat(rateData.weight_per_10000_19999lbs);
+    } else if (weightLbs! < 20000) {
+      rate = parseFloat(rateData.weight_per_10000_19999lbs.toString());
       weightCategory = '10,000-19,999 lbs';
-    } else if (weightLbs < 30000) {
-      rate = parseFloat(rateData.weight_per_20000_29999lbs);
+    } else if (weightLbs! < 30000) {
+      rate = parseFloat(rateData.weight_per_20000_29999lbs.toString());
       weightCategory = '20,000-29,999 lbs';
-    } else if (weightLbs < 40000) {
-      rate = parseFloat(rateData.weight_per_30000_39999lbs);
+    } else if (weightLbs! < 40000) {
+      rate = parseFloat(rateData.weight_per_30000_39999lbs.toString());
       weightCategory = '30,000-39,999 lbs';
     } else {
-      rate = parseFloat(rateData.weight_over_4000lbs);
+      rate = parseFloat(rateData.weight_over_4000lbs.toString());
       weightCategory = '40,000+ lbs';
     }
     
     // Calculate total cost
-    const totalCost = weightLbs * rate;
+    const totalCost = weightLbs! * rate;
     
     // Check if truckload would be cheaper
-    const tlRate = parseFloat(rateData.tl_rate || 0);
+    const tlRate = rateData.tl_rate ? parseFloat(rateData.tl_rate.toString()) : 0;
     if (tlRate > 0 && totalCost > tlRate) {
-      return res.status(200).json({
+      const response: RateCalculationResponse = {
         isTruckload: true,
         rate: null,
         totalCost: tlRate,
@@ -193,11 +276,14 @@ const calculateRate = async (req, res) => {
           destinationProvince,
           customerName
         }
-      });
+      };
+      
+      res.status(200).json(response);
+      return;
     }
     
     // Return the calculated rate
-    res.status(200).json({
+    const response: RateCalculationResponse = {
       isTruckload: false,
       rate,
       totalCost,
@@ -208,11 +294,12 @@ const calculateRate = async (req, res) => {
         destinationCity,
         destinationProvince,
         customerName,
-        minWeightLb: parseFloat(rateData.min_weight_lb)
+        minWeightLb: parseFloat(rateData.min_weight_lb.toString())
       }
-    });
+    };
     
-  } catch (err) {
+    res.status(200).json(response);
+  } catch (err: any) {
     logger.error(`Error calculating rate: ${err.message}`);
     res.status(500).json({
       error: 'Failed to calculate rate',
@@ -224,19 +311,19 @@ const calculateRate = async (req, res) => {
 /**
  * Get all rate table entries
  */
-const getRates = async (req, res) => {
+const getRates = async (req: Request, res: Response): Promise<void> => {
   try {
-    const query = `
+    const queryText = `
       SELECT r.*, w.name as origin_warehouse_name
       FROM rate_tables r
       LEFT JOIN warehouses w ON r.origin_warehouse_id = w.warehouse_id
       ORDER BY r.customer_name, r.destination_province, r.destination_city
     `;
     
-    const result = await pool.query(query);
+    const result = await query(queryText);
     
     res.status(200).json(result.rows);
-  } catch (err) {
+  } catch (err: any) {
     logger.error(`Error getting rates: ${err.message}`);
     res.status(500).json({
       error: 'Failed to retrieve rates',
@@ -248,28 +335,29 @@ const getRates = async (req, res) => {
 /**
  * Get a specific rate table entry by ID
  */
-const getRateById = async (req, res) => {
+const getRateById = async (req: Request, res: Response): Promise<void> => {
   const { rateId } = req.params;
   
   try {
-    const query = `
+    const queryText = `
       SELECT r.*, w.name as origin_warehouse_name
       FROM rate_tables r
       LEFT JOIN warehouses w ON r.origin_warehouse_id = w.warehouse_id
       WHERE r.rate_id = $1
     `;
     
-    const result = await pool.query(query, [rateId]);
+    const result = await query(queryText, [rateId]);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         error: 'Rate not found',
         details: `No rate found with ID ${rateId}`
       });
+      return;
     }
     
     res.status(200).json(result.rows[0]);
-  } catch (err) {
+  } catch (err: any) {
     logger.error(`Error getting rate: ${err.message}`);
     res.status(500).json({
       error: 'Failed to retrieve rate',
@@ -281,7 +369,7 @@ const getRateById = async (req, res) => {
 /**
  * Create a new rate table entry
  */
-const createRate = async (req, res) => {
+const createRate = async (req: Request, res: Response): Promise<void> => {
   const {
     customerName,
     destinationCity,
@@ -296,10 +384,10 @@ const createRate = async (req, res) => {
     weightPerOver40000lbs,
     tlRate,
     originWarehouseId
-  } = req.body;
+  } = req.body as CreateRateRequest;
   
   try {
-    const query = `
+    const queryText = `
       INSERT INTO rate_tables (
         customer_name,
         destination_city,
@@ -319,7 +407,7 @@ const createRate = async (req, res) => {
       RETURNING *
     `;
     
-    const result = await pool.query(query, [
+    const result = await query(queryText, [
       customerName,
       destinationCity,
       destinationProvince,
@@ -336,7 +424,7 @@ const createRate = async (req, res) => {
     ]);
     
     res.status(201).json(result.rows[0]);
-  } catch (err) {
+  } catch (err: any) {
     logger.error(`Error creating rate: ${err.message}`);
     res.status(500).json({
       error: 'Failed to create rate',
@@ -348,7 +436,7 @@ const createRate = async (req, res) => {
 /**
  * Update an existing rate table entry
  */
-const updateRate = async (req, res) => {
+const updateRate = async (req: Request, res: Response): Promise<void> => {
   const { rateId } = req.params;
   const {
     customerName,
@@ -364,10 +452,10 @@ const updateRate = async (req, res) => {
     weightPerOver40000lbs,
     tlRate,
     originWarehouseId
-  } = req.body;
+  } = req.body as CreateRateRequest;
   
   try {
-    const query = `
+    const queryText = `
       UPDATE rate_tables
       SET customer_name = $1,
           destination_city = $2,
@@ -386,7 +474,7 @@ const updateRate = async (req, res) => {
       RETURNING *
     `;
     
-    const result = await pool.query(query, [
+    const result = await query(queryText, [
       customerName,
       destinationCity,
       destinationProvince,
@@ -404,14 +492,15 @@ const updateRate = async (req, res) => {
     ]);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         error: 'Rate not found',
         details: `No rate found with ID ${rateId}`
       });
+      return;
     }
     
     res.status(200).json(result.rows[0]);
-  } catch (err) {
+  } catch (err: any) {
     logger.error(`Error updating rate: ${err.message}`);
     res.status(500).json({
       error: 'Failed to update rate',
@@ -423,25 +512,26 @@ const updateRate = async (req, res) => {
 /**
  * Delete a rate table entry
  */
-const deleteRate = async (req, res) => {
+const deleteRate = async (req: Request, res: Response): Promise<void> => {
   const { rateId } = req.params;
   
   try {
-    const query = 'DELETE FROM rate_tables WHERE rate_id = $1 RETURNING *';
-    const result = await pool.query(query, [rateId]);
+    const queryText = 'DELETE FROM rate_tables WHERE rate_id = $1 RETURNING *';
+    const result = await query(queryText, [rateId]);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         error: 'Rate not found',
         details: `No rate found with ID ${rateId}`
       });
+      return;
     }
     
     res.status(200).json({
       message: 'Rate deleted successfully',
       deletedRate: result.rows[0]
     });
-  } catch (err) {
+  } catch (err: any) {
     logger.error(`Error deleting rate: ${err.message}`);
     res.status(500).json({
       error: 'Failed to delete rate',
@@ -453,11 +543,12 @@ const deleteRate = async (req, res) => {
 /**
  * Import rates from CSV
  */
-const importRates = async (req, res) => {
-  const { csvData } = req.body;
+const importRates = async (req: Request, res: Response): Promise<void> => {
+  const { csvData } = req.body as ImportRateRequest;
   
   if (!csvData) {
-    return res.status(400).json({ error: 'CSV data is required' });
+    res.status(400).json({ error: 'CSV data is required' });
+    return;
   }
   
   try {
@@ -473,7 +564,7 @@ const importRates = async (req, res) => {
       
       let insertCount = 0;
       let errorCount = 0;
-      const errors = [];
+      const errors: Array<{ line: number; error: string }> = [];
       
       // Process each line (skip header)
       for (let i = 1; i < lines.length; i++) {
@@ -481,14 +572,14 @@ const importRates = async (req, res) => {
         
         try {
           const values = lines[i].split(',').map(v => v.trim());
-          const rowData = {};
+          const rowData: Record<string, string> = {};
           
           headers.forEach((header, index) => {
             rowData[header] = values[index];
           });
           
           // Insert the row
-          const query = `
+          const queryText = `
             INSERT INTO rate_tables (
               customer_name,
               destination_city,
@@ -507,24 +598,24 @@ const importRates = async (req, res) => {
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
           `;
           
-          await client.query(query, [
+          await client.query(queryText, [
             rowData.customer_name || '',
             rowData.destination_city || '',
             rowData.destination_province || '',
-            parseFloat(rowData.min_weight_lb || 0),
-            parseFloat(rowData.weight_per_0_1999lbs || 0),
-            parseFloat(rowData.weight_per_2000_4999lbs || 0),
-            parseFloat(rowData.weight_per_5000_9999lbs || 0),
-            parseFloat(rowData.weight_per_10000_19999lbs || 0),
-            parseFloat(rowData.weight_per_20000_29999lbs || 0),
-            parseFloat(rowData.weight_per_30000_39999lbs || 0),
-            parseFloat(rowData.weight_over_4000lbs || 0),
-            parseFloat(rowData.tl_rate || 0),
+            parseFloat(rowData.min_weight_lb || '0'),
+            parseFloat(rowData.weight_per_0_1999lbs || '0'),
+            parseFloat(rowData.weight_per_2000_4999lbs || '0'),
+            parseFloat(rowData.weight_per_5000_9999lbs || '0'),
+            parseFloat(rowData.weight_per_10000_19999lbs || '0'),
+            parseFloat(rowData.weight_per_20000_29999lbs || '0'),
+            parseFloat(rowData.weight_per_30000_39999lbs || '0'),
+            parseFloat(rowData.weight_over_4000lbs || '0'),
+            parseFloat(rowData.tl_rate || '0'),
             rowData.origin_warehouse_id || ''
           ]);
           
           insertCount++;
-        } catch (err) {
+        } catch (err: any) {
           errorCount++;
           errors.push({ line: i + 1, error: err.message });
         }
@@ -547,7 +638,7 @@ const importRates = async (req, res) => {
     } finally {
       client.release();
     }
-  } catch (err) {
+  } catch (err: any) {
     logger.error(`Error importing rates: ${err.message}`);
     res.status(500).json({
       error: 'Failed to import rates',
@@ -559,22 +650,23 @@ const importRates = async (req, res) => {
 /**
  * Export rates as CSV
  */
-const exportRates = async (req, res) => {
+const exportRates = async (req: Request, res: Response): Promise<void> => {
   try {
-    const query = `
+    const queryText = `
       SELECT r.*, w.name as origin_warehouse_name
       FROM rate_tables r
       LEFT JOIN warehouses w ON r.origin_warehouse_id = w.warehouse_id
       ORDER BY r.customer_name, r.destination_province, r.destination_city
     `;
     
-    const result = await pool.query(query);
+    const result = await query(queryText);
     
     if (result.rows.length === 0) {
-      return res.status(404).json({
+      res.status(404).json({
         error: 'No rates found',
         details: 'No rates exist in the database to export'
       });
+      return;
     }
     
     // Create CSV header
@@ -598,7 +690,7 @@ const exportRates = async (req, res) => {
     // Create CSV content
     let csvContent = headers.join(',') + '\n';
     
-    result.rows.forEach(row => {
+    result.rows.forEach((row: any) => {
       const values = headers.map(header => {
         const value = row[header];
         if (value === null || value === undefined) return '';
@@ -615,7 +707,7 @@ const exportRates = async (req, res) => {
     res.setHeader('Content-Disposition', 'attachment; filename=rate_tables.csv');
     
     res.status(200).send(csvContent);
-  } catch (err) {
+  } catch (err: any) {
     logger.error(`Error exporting rates: ${err.message}`);
     res.status(500).json({
       error: 'Failed to export rates',
@@ -627,25 +719,25 @@ const exportRates = async (req, res) => {
 /**
  * Get distinct customer names
  */
-const getCustomers = async (req, res) => {
+const getCustomers = async (req: Request, res: Response): Promise<void> => {
   try {
-    const query = `
+    const queryText = `
       SELECT DISTINCT customer_name 
       FROM rate_tables 
       WHERE customer_name IS NOT NULL AND customer_name != ''
       ORDER BY customer_name
     `;
     
-    const result = await pool.query(query);
+    const result = await query(queryText);
     
     // Format as an array of customer objects
-    const customers = result.rows.map((row, index) => ({
+    const customers = result.rows.map((row: any, index: number) => ({
       customerId: `customer-${index + 1}`,
       name: row.customer_name
     }));
     
     res.status(200).json(customers);
-  } catch (err) {
+  } catch (err: any) {
     logger.error(`Error getting customers: ${err.message}`);
     res.status(500).json({
       error: 'Failed to retrieve customers',
@@ -654,7 +746,7 @@ const getCustomers = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   calculateRate,
   getRates,
   getRateById,
