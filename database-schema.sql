@@ -103,17 +103,18 @@ CREATE TABLE products (
 
 -- Rate Tables
 CREATE TABLE rate_tables (
-    rate_id SERIAL PRIMARY KEY,
-    origin_warehouse_id INTEGER REFERENCES warehouses(warehouse_id),
-    destination_city VARCHAR(100) NOT NULL,
-    destination_province VARCHAR(50) NOT NULL,
-    min_weight_kg DECIMAL(10,2) NOT NULL,
-    max_weight_kg DECIMAL(10,2) NOT NULL,
-    rate_per_100kg DECIMAL(10,2) NOT NULL,
-    effective_date DATE NOT NULL,
-    expiry_date DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            destination_city,
+            destination_province,
+            min_weight_lb,
+            weight_per_0_1999lbs,
+            weight_per_2000_4999lbs,
+            weight_per_5000_9999lbs,
+            weight_per_10000_19999lbs,
+            weight_per_20000_29999lbs,
+            weight_per_30000_39999lbs,
+            weight_over_4000lbs,
+            tl_rate,
+            origin_warehouse_id
 );
 
 -- Order Headers
