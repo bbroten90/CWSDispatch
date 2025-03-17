@@ -1,6 +1,6 @@
 // src/index.ts
 import app from './app';
-import pool from './config/database';
+import pool from './config/backend-database-connection';
 import { setupLogger } from './utils/logger';
 
 // Initialize logger
@@ -12,7 +12,7 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   
   // Test database connection on startup
-  pool.query('SELECT NOW()', (err, res) => {
+  pool.query('SELECT NOW()', (err: Error | null, res: any) => {
     if (err) {
       console.error('Database connection error:', err.message);
     } else {

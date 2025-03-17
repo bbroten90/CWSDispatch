@@ -7,6 +7,7 @@ import {
   updateOrder, 
   deleteOrder,
   getOrderWithShipmentDetails,
+  getOrdersWithProductInfo,
   OrderFilters
 } from '../models/orderModel';
 import { ApiError } from '../middleware/errorHandler';
@@ -22,7 +23,8 @@ export const getAllOrders = async (req: Request, res: Response) => {
   if (req.query.start_date) filters.start_date = new Date(req.query.start_date as string);
   if (req.query.end_date) filters.end_date = new Date(req.query.end_date as string);
   
-  const orders = await getOrders(filters);
+  // Use the enhanced function that includes product and hazard information
+  const orders = await getOrdersWithProductInfo(filters);
   
   res.status(200).json({
     status: 'success',

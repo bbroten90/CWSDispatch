@@ -9,14 +9,45 @@ import {
   Tabs, TabsContent, TabsList, TabsTrigger,
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
   DialogFooter, DialogClose
-} from '@/components/ui';
+} from '../components/ui';
 import { Truck, Filter, Download, RefreshCw, Eye, MapPin } from 'lucide-react';
 
+// Define interfaces for our data types
+interface Warehouse {
+  warehouse_id: string;
+  name: string;
+}
+
+interface Order {
+  id: number;
+  order_number: string;
+  customer_name: string;
+  delivery_city: string;
+  delivery_province: string;
+  total_weight: number;
+  pallets: number;
+  stop_sequence?: number;
+}
+
+interface Shipment {
+  id: number;
+  shipment_number: string;
+  warehouse_name: string;
+  vehicle_number?: string;
+  planned_date: string;
+  status: string;
+  order_count?: number;
+  total_weight: number;
+  total_pallets: number;
+  total_revenue: number;
+  orders?: Order[];
+}
+
 const Shipments = () => {
-  const [shipments, setShipments] = useState([]);
-  const [warehouses, setWarehouses] = useState([]);
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedShipment, setSelectedShipment] = useState(null);
+  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   
   // Filter states
@@ -51,7 +82,7 @@ const Shipments = () => {
   const loadShipments = async () => {
     setLoading(true);
     try {
-      const filters = {
+      const filters: Record<string, string> = {
         origin_warehouse_id: selectedWarehouse,
         status: selectedStatus,
         start_date: dateRange.startDate,
@@ -79,7 +110,7 @@ const Shipments = () => {
     }
   }, [selectedWarehouse, selectedStatus, dateRange]);
   
-  const getShipmentDetails = async (shipmentId) => {
+  const getShipmentDetails = async (shipmentId: number) => {
     try {
       const response = await axios.get(`/api/shipments/${shipmentId}/details`);
       setSelectedShipment(response.data.data.shipment);
@@ -124,7 +155,7 @@ const Shipments = () => {
   };
   
   // Helper function to format currency
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-CA', {
       style: 'currency',
       currency: 'CAD'
@@ -140,12 +171,12 @@ const Shipments = () => {
         </div>
         
         <div className="flex items-center space-x-2">
-          <Button onClick={loadShipments} variant="outline">
+          <Button onClick={loadShipments} variant="outlined">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           
-          <Button onClick={exportShipmentsCSV} variant="outline">
+          <Button onClick={exportShipmentsCSV} variant="outlined">
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
@@ -188,7 +219,7 @@ const Shipments = () => {
                 value={selectedStatus}
                 onValueChange={setSelectedStatus}
               >
-                // src/pages/Shipments.tsx (continuing)
+                {/* src/pages/Shipments.tsx (continuing) */}
                 <SelectTrigger>
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
@@ -362,9 +393,17 @@ const Shipments = () => {
   );
 };
 
+// Define interface for ShipmentsTable props
+interface ShipmentsTableProps {
+  shipments: Shipment[];
+  loading: boolean;
+  onViewDetails: (shipmentId: number) => void;
+  formatCurrency: (amount: number) => string;
+}
+
 // Shipments Table Component
-const ShipmentsTable = ({ shipments, loading, onViewDetails, formatCurrency }) => {
-  const getStatusColor = (status) => {
+const ShipmentsTable: React.FC<ShipmentsTableProps> = ({ shipments, loading, onViewDetails, formatCurrency }) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'planned': return 'bg-blue-100 text-blue-800';
       case 'in_transit': return 'bg-purple-100 text-purple-800';
@@ -421,10 +460,10 @@ const ShipmentsTable = ({ shipments, loading, onViewDetails, formatCurrency }) =
                     <td className="p-3 text-right">{formatCurrency(shipment.total_revenue)}</td>
                     <td className="p-3 text-center">
                       <Button 
-                        size="sm" 
                         variant="ghost" 
                         onClick={() => onViewDetails(shipment.id)}
                         title="View Details"
+                        className="p-1" // Use className instead of size
                       >
                         <Eye className="h-4 w-4" />
                       </Button>

@@ -1,24 +1,31 @@
 // src/routes/reportRoutes.ts
-import { Router } from 'express';
-import { 
-  deliveryPerformanceReport,
-  vehicleUtilizationReport,
-  driverPerformanceReport,
-  revenueByRegionReport,
-  monthlyTrendsReport,
-  dashboardSummary
+import { Router, Request, Response, NextFunction } from 'express';
+import {
+  dashboardSummary,
+  revenueByCustomerReport,
+  shipmentEfficiencyReport,
+  monthlyTrendsReport
 } from '../controllers/reportController';
 
 const router = Router();
 
-// Dashboard summary - multiple reports for dashboard
-router.get('/dashboard', dashboardSummary);
+// Wrapper function to handle async controller functions with proper typing
+const asyncHandler = (
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
+) => (req: Request, res: Response, next: NextFunction): void => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
 
-// Individual reports
-router.get('/delivery-performance', deliveryPerformanceReport);
-router.get('/vehicle-utilization', vehicleUtilizationReport);
-router.get('/driver-performance', driverPerformanceReport);
-router.get('/revenue-by-region', revenueByRegionReport);
-router.get('/monthly-trends', monthlyTrendsReport);
+// Dashboard summary endpoint
+router.get('/dashboard-summary', asyncHandler(dashboardSummary));
+
+// Monthly trends report endpoint
+router.get('/monthly-trends', asyncHandler(monthlyTrendsReport));
+
+// Revenue by customer report endpoint
+router.get('/revenue-by-customer', asyncHandler(revenueByCustomerReport));
+
+// Shipment efficiency report endpoint
+router.get('/shipment-efficiency', asyncHandler(shipmentEfficiencyReport));
 
 export default router;

@@ -9,13 +9,48 @@ import {
   Tabs, TabsContent, TabsList, TabsTrigger,
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
   DialogFooter, DialogClose
-} from '@/components/ui';
+} from '../components/ui';
 import { Package, Search, Plus, Filter, Download, RefreshCw } from 'lucide-react';
+import HazardWarning from '../components/HazardWarning';
 
 const Orders = () => {
-  const [orders, setOrders] = useState([]);
-  const [warehouses, setWarehouses] = useState([]);
-  const [customers, setCustomers] = useState([]);
+  interface Order {
+    id: number;
+    order_number: string;
+    customer_name: string;
+    warehouse_name: string;
+    delivery_city: string;
+    delivery_province: string;
+    pickup_date: string;
+    delivery_date: string;
+    total_weight: number;
+    pallets: number;
+    status: string;
+    line_items?: Array<{
+      hazard_code?: string;
+      hazard_description1?: string;
+      hazard_description2?: string;
+      hazard_description3?: string;
+    }>;
+  }
+
+  interface Warehouse {
+    warehouse_id: string;
+    name: string;
+  }
+
+  interface Customer {
+    customer_id: string;
+    company_name: string;
+  }
+
+  interface FilterParams {
+    [key: string]: string;
+  }
+
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Filter states
@@ -84,7 +119,7 @@ const Orders = () => {
   const loadOrders = async () => {
     setLoading(true);
     try {
-      const filters = {
+      const filters: FilterParams = {
         warehouse_id: selectedWarehouse,
         customer_id: selectedCustomer,
         status: selectedStatus,
@@ -94,7 +129,9 @@ const Orders = () => {
       
       // Remove empty filters
       Object.keys(filters).forEach(key => {
-        if (!filters[key]) delete filters[key];
+        if (!filters[key as keyof FilterParams]) {
+          delete filters[key as keyof FilterParams];
+        }
       });
       
       const response = await axios.get('/api/orders', { params: filters });
@@ -113,7 +150,7 @@ const Orders = () => {
     }
   }, [selectedWarehouse, selectedCustomer, selectedStatus, dateRange]);
   
-  const handleNewOrderSubmit = async (e) => {
+  const handleNewOrderSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     try {
@@ -137,13 +174,16 @@ const Orders = () => {
         pallets: 0,
         special_instructions: ''
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating order:', error);
-      alert('Error creating order: ' + (error.response?.data?.message || error.message));
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Unknown error occurred';
+      alert('Error creating order: ' + errorMessage);
     }
   };
   
-  const handleFormChange = (e) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewOrderForm(prev => ({
       ...prev,
@@ -151,7 +191,7 @@ const Orders = () => {
     }));
   };
   
-  const handleSelectChange = (name, value) => {
+  const handleSelectChange = (name: string, value: string) => {
     setNewOrderForm(prev => ({
       ...prev,
       [name]: value
@@ -202,12 +242,12 @@ const Orders = () => {
         </div>
         
         <div className="flex items-center space-x-2">
-          <Button onClick={loadOrders} variant="outline">
+          <Button onClick={loadOrders} variant="outlined">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
           
-          <Button onClick={exportOrdersCSV} variant="outline">
+          <Button onClick={exportOrdersCSV} variant="outlined">
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
@@ -242,7 +282,7 @@ const Orders = () => {
                       <label className="text-sm font-medium">Customer</label>
                       <Select
                         value={newOrderForm.customer_id}
-                        onValueChange={(value) => handleSelectChange('customer_id', value)}
+                        onValueChange={(value: string) => handleSelectChange('customer_id', value)}
                         required
                       >
                         <SelectTrigger>
@@ -264,7 +304,7 @@ const Orders = () => {
                       <label className="text-sm font-medium">Pickup Warehouse</label>
                       <Select
                         value={newOrderForm.pickup_warehouse_id}
-                        onValueChange={(value) => handleSelectChange('pickup_warehouse_id', value)}
+                        onValueChange={(value: string) => handleSelectChange('pickup_warehouse_id', value)}
                         required
                       >
                         <SelectTrigger>
@@ -388,7 +428,7 @@ const Orders = () => {
                 
                 <DialogFooter>
                   <DialogClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outlined">Cancel</Button>
                   </DialogClose>
                   <Button type="submit">Create Order</Button>
                 </DialogFooter>
@@ -474,7 +514,7 @@ const Orders = () => {
                 <Input
                   type="date"
                   value={dateRange.startDate}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
                 />
               </div>
               
@@ -483,7 +523,7 @@ const Orders = () => {
                 <Input
                   type="date"
                   value={dateRange.endDate}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
                 />
               </div>
             </div>
@@ -525,9 +565,36 @@ const Orders = () => {
   );
 };
 
+interface Order {
+  id: number;
+  order_number: string;
+  customer_name: string;
+  warehouse_name: string;
+  delivery_city: string;
+  delivery_province: string;
+  pickup_date: string;
+  delivery_date: string;
+  total_weight: number;
+  pallets: number;
+  status: string;
+  line_items?: Array<LineItem>;
+}
+
+interface LineItem {
+  hazard_code?: string;
+  hazard_description1?: string;
+  hazard_description2?: string;
+  hazard_description3?: string;
+}
+
 // Orders Table Component
-const OrdersTable = ({ orders, loading }) => {
-  const getStatusColor = (status) => {
+interface OrdersTableProps {
+  orders: Order[];
+  loading: boolean;
+}
+
+const OrdersTable = ({ orders, loading }: OrdersTableProps) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-amber-100 text-amber-800';
       case 'assigned': return 'bg-blue-100 text-blue-800';
@@ -564,6 +631,7 @@ const OrdersTable = ({ orders, loading }) => {
                   <th className="text-right p-3">Weight (lbs)</th>
                   <th className="text-right p-3">Pallets</th>
                   <th className="text-center p-3">Status</th>
+                  <th className="text-center p-3">Hazard</th>
                 </tr>
               </thead>
               <tbody>
@@ -581,6 +649,25 @@ const OrdersTable = ({ orders, loading }) => {
                       <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(order.status)}`}>
                         {order.status}
                       </span>
+                    </td>
+                    <td className="p-3 text-center">
+                      {order.line_items && order.line_items.some(item => item.hazard_code) ? (
+                        <div className="flex flex-col gap-1 items-center">
+                          {order.line_items
+                            .filter(item => item.hazard_code)
+                            .map((item, index) => (
+                              <HazardWarning
+                                key={index}
+                                hazardCode={item.hazard_code || ''}
+                                hazardDescription1={item.hazard_description1}
+                                hazardDescription2={item.hazard_description2}
+                                hazardDescription3={item.hazard_description3}
+                              />
+                            ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs">None</span>
+                      )}
                     </td>
                   </tr>
                 ))}

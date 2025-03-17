@@ -1,5 +1,6 @@
 // src/App.tsx
 import React from 'react';
+import './App.css';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Package, Truck, BarChart2, Settings } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
@@ -19,7 +20,7 @@ function App() {
           <nav className="flex-1 mt-6">
             <Link to="/" className="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800">
               <BarChart2 className="h-5 w-5 mr-3" />
-              // src/App.tsx (continued)
+              {/* src/App.tsx (continued) */}
               <span className="hidden md:block">Dashboard</span>
             </Link>
             <Link to="/orders" className="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800">

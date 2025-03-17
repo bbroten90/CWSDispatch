@@ -7,21 +7,45 @@ import {
   Button, Input, Label,
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
   Alert, AlertTitle, AlertDescription
-} from '@/components/ui';
+} from '../components/ui';
 import { Truck, Package, ChevronRight, Plus, Save, RefreshCw } from 'lucide-react';
 
 const LoadBuilder = () => {
-  const [warehouses, setWarehouses] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [pendingOrders, setPendingOrders] = useState([]);
-  const [selectedOrders, setSelectedOrders] = useState([]);
-  const [selectedWarehouse, setSelectedWarehouse] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState('');
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
+  // Define interfaces for our data types
+  interface Warehouse {
+    warehouse_id: string;
+    name: string;
+  }
+
+  interface Vehicle {
+    id: string;
+    vehicle_number: string;
+    make: string;
+    model: string;
+    capacity_weight: number;
+    capacity_pallets: number;
+  }
+
+  interface Order {
+    id: string;
+    order_number: string;
+    delivery_city: string;
+    delivery_province: string;
+    total_weight: number;
+    pallets: number;
+  }
+
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<Order[]>([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
+  const [selectedVehicle, setSelectedVehicle] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string>('');
   
   // Load initial data
   useEffect(() => {
@@ -74,7 +98,7 @@ const LoadBuilder = () => {
     }
   };
   
-  const handleAddOrder = (order) => {
+  const handleAddOrder = (order: Order) => {
     // Calculate if adding this order would exceed vehicle capacity
     if (!selectedVehicle) {
       setError('Please select a vehicle first');
@@ -82,6 +106,11 @@ const LoadBuilder = () => {
     }
     
     const vehicle = vehicles.find(v => v.id === selectedVehicle);
+    if (!vehicle) {
+      setError('Selected vehicle not found');
+      return;
+    }
+    
     const currentWeight = selectedOrders.reduce((sum, o) => sum + o.total_weight, 0);
     const currentPallets = selectedOrders.reduce((sum, o) => sum + o.pallets, 0);
     
@@ -104,7 +133,7 @@ const LoadBuilder = () => {
     setError(null);
   };
   
-  const handleRemoveOrder = (order) => {
+  const handleRemoveOrder = (order: Order) => {
     // Remove from selected orders
     setSelectedOrders(selectedOrders.filter(o => o.id !== order.id));
     
@@ -170,7 +199,7 @@ const LoadBuilder = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={loadWarehouseData}>
+          <Button variant="outlined" onClick={loadWarehouseData}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh Data
           </Button>
@@ -178,17 +207,17 @@ const LoadBuilder = () => {
       </header>
       
       {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <div className="mb-4 p-4 border border-red-200 bg-red-50 rounded text-red-800">
+          <h4 className="font-semibold">Error</h4>
+          <p>{error}</p>
+        </div>
       )}
       
       {successMessage && (
-        <Alert className="mb-4 bg-green-50 border-green-200">
-          <AlertTitle>Success</AlertTitle>
-          <AlertDescription>{successMessage}</AlertDescription>
-        </Alert>
+        <div className="mb-4 p-4 border border-green-200 bg-green-50 rounded text-green-800">
+          <h4 className="font-semibold">Success</h4>
+          <p>{successMessage}</p>
+        </div>
       )}
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
@@ -217,7 +246,7 @@ const LoadBuilder = () => {
           <Input
             type="date"
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedDate(e.target.value)}
             disabled={loading}
           />
         </div>
@@ -293,7 +322,7 @@ const LoadBuilder = () => {
                         <td className="p-2 text-right">{order.pallets}</td>
                         <td className="p-2 text-right">
                           <Button 
-                            size="sm" 
+                            className="p-1" 
                             variant="ghost"
                             onClick={() => handleAddOrder(order)}
                             disabled={!selectedVehicle}
@@ -336,7 +365,7 @@ const LoadBuilder = () => {
                         ></div>
                       </div>
                       <p className="text-sm whitespace-nowrap">
-                        {currentWeight.toLocaleString()} / {selectedVehicleInfo.capacity_weight.toLocaleString()} lbs
+                        {currentWeight.toLocaleString()} / {selectedVehicleInfo?.capacity_weight.toLocaleString() || 0} lbs
                       </p>
                     </div>
                   </div>
@@ -351,7 +380,7 @@ const LoadBuilder = () => {
                         ></div>
                       </div>
                       <p className="text-sm whitespace-nowrap">
-                        {currentPallets} / {selectedVehicleInfo.capacity_pallets}
+                        {currentPallets} / {selectedVehicleInfo?.capacity_pallets || 0}
                       </p>
                     </div>
                   </div>
@@ -382,7 +411,7 @@ const LoadBuilder = () => {
                             <td className="p-2 text-right">{order.pallets}</td>
                             <td className="p-2 text-right">
                               <Button 
-                                size="sm" 
+                                className="p-1" 
                                 variant="ghost"
                                 onClick={() => handleRemoveOrder(order)}
                               >

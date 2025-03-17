@@ -1,5 +1,5 @@
 // src/models/driverModel.ts
-import { query } from '../config/database';
+import { query } from '../config/backend-database-connection';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Driver {
@@ -150,6 +150,26 @@ export const deleteDriver = async (id: string): Promise<boolean> => {
 // Get driver with current assignment status
 export const getDriverWithAssignmentStatus = async (id: string): Promise<any> => {
   const result = await query(`
+    SELECT d.*, 
+           s.id as current_shipment_id, 
+           s.status as shipment_status,
+           o.id as order_id,
+           o.order_number,
+           v.id as vehicle_id,
+           v.vehicle_number
+    FROM drivers d
+    LEFT JOIN shipments s ON d.id = s.driver_id AND s.status IN ('planned', 'in_transit')
+    LEFT JOIN orders o ON s.order_id = o.id
+    LEFT JOIN vehicles v ON s.vehicle_id = v.id
+    WHERE d.id = $1
+  `, [id]);
+  
+  return result.rows.length ? result.rows[0] : null;
+};
+
+// Get drivers with licenses expiring soon
+export const getDriversWithExpiringLicenses = async (days: number = 30): Promise<Driver[]> => {
+  const result = await query(`
     SELECT * FROM drivers
     WHERE license_expiry BETWEEN CURRENT_DATE AND (CURRENT_DATE + interval '${days} days')
     ORDER BY license_expiry
@@ -212,23 +232,3 @@ export const getDriverPerformanceMetrics = async (id: string, startDate?: Date, 
   
   return result.rows[0];
 };
-    SELECT d.*, 
-           s.id as current_shipment_id, 
-           s.status as shipment_status,
-           o.id as order_id,
-           o.order_number,
-           v.id as vehicle_id,
-           v.vehicle_number
-    FROM drivers d
-    LEFT JOIN shipments s ON d.id = s.driver_id AND s.status IN ('planned', 'in_transit')
-    LEFT JOIN orders o ON s.order_id = o.id
-    LEFT JOIN vehicles v ON s.vehicle_id = v.id
-    WHERE d.id = $1
-  `, [id]);
-  
-  return result.rows.length ? result.rows[0] : null;
-};
-
-// Get drivers with licenses expiring soon
-export const getDriversWithExpiringLicenses = async (days: number = 30): Promise<Driver[]> => {
-  const result = await query(`

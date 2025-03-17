@@ -1,5 +1,5 @@
 // src/models/reportModel.ts
-import { query } from '../config/database';
+import { query } from '../config/backend-database-connection';
 
 // Delivery performance report
 export const getDeliveryPerformance = async (
@@ -192,4 +192,3 @@ export const getMonthlyTrends = async (
   const result = await query(queryText, [startDate, endDate]);
   return result.rows;
 };
-  

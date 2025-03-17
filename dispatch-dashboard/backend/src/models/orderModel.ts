@@ -1,5 +1,5 @@
 // src/models/orderModel.ts
-import { query } from '../config/database';
+import { query } from '../config/backend-database-connection';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Order {
@@ -174,13 +174,181 @@ export const getOrderWithShipmentDetails = async (id: string): Promise<any> => {
            v.vehicle_number,
            d.id as driver_id,
            d.first_name as driver_first_name,
-           d.last_name as driver_last_name
+           d.last_name as driver_last_name,
+           c.company_name as customer_name,
+           c.address as customer_address,
+           c.city as customer_city,
+           c.province as customer_province,
+           c.postal_code as customer_postal_code,
+           c.contact_name as customer_contact_name,
+           c.contact_phone as customer_contact_phone,
+           c.contact_email as customer_contact_email,
+           oli.product_id,
+           p.name as product_name,
+           p.description as product_description,
+           p.weight_kg as product_weight,
+           p.volume_cubic_m as product_volume,
+           p.requires_heating as product_requires_heating,
+           p.is_dangerous_good as product_is_dangerous,
+           h.hazard_pk,
+           h.hazard_code,
+           h.description1 as hazard_description1,
+           h.description2 as hazard_description2,
+           h.description3 as hazard_description3
     FROM orders o
     LEFT JOIN shipments s ON o.id = s.order_id
     LEFT JOIN vehicles v ON s.vehicle_id = v.id
     LEFT JOIN drivers d ON s.driver_id = d.id
+    LEFT JOIN customers c ON o.customer_id = c.customer_id
+    LEFT JOIN order_line_items oli ON o.id = oli.order_id
+    LEFT JOIN products p ON oli.product_id = p.product_id
+    LEFT JOIN hazards h ON p.hazard_pk = h.hazard_pk
     WHERE o.id = $1
   `, [id]);
   
-  return result.rows.length ? result.rows[0] : null;
+  if (result.rows.length === 0) {
+    return null;
+  }
+  
+  // Group line items with products and hazards
+  const order = result.rows[0];
+  order.line_items = result.rows
+    .filter((row: any) => row.product_id) // Only include rows with products
+    .map((row: any) => ({
+      product_id: row.product_id,
+      product_name: row.product_name,
+      product_description: row.product_description,
+      product_weight: row.product_weight,
+      product_volume: row.product_volume,
+      product_requires_heating: row.product_requires_heating,
+      product_is_dangerous: row.product_is_dangerous,
+      hazard_pk: row.hazard_pk,
+      hazard_code: row.hazard_code,
+      hazard_description1: row.hazard_description1,
+      hazard_description2: row.hazard_description2,
+      hazard_description3: row.hazard_description3
+    }));
+  
+  // Remove duplicate product fields from the main order object
+  delete order.product_id;
+  delete order.product_name;
+  delete order.product_description;
+  delete order.product_weight;
+  delete order.product_volume;
+  delete order.product_requires_heating;
+  delete order.product_is_dangerous;
+  delete order.hazard_pk;
+  delete order.hazard_code;
+  delete order.hazard_description1;
+  delete order.hazard_description2;
+  delete order.hazard_description3;
+  
+  return order;
+};
+
+// Get all orders with product and hazard information
+export const getOrdersWithProductInfo = async (filters?: OrderFilters): Promise<any[]> => {
+  let queryText = `
+    SELECT o.*,
+           c.company_name as customer_name,
+           oli.product_id,
+           p.name as product_name,
+           p.description as product_description,
+           p.is_dangerous_good as product_is_dangerous,
+           h.hazard_code,
+           h.description1 as hazard_description1
+    FROM orders o
+    LEFT JOIN customers c ON o.customer_id = c.customer_id
+    LEFT JOIN order_line_items oli ON o.id = oli.order_id
+    LEFT JOIN products p ON oli.product_id = p.product_id
+    LEFT JOIN hazards h ON p.hazard_pk = h.hazard_pk
+  `;
+  
+  const queryParams: any[] = [];
+  
+  if (filters) {
+    const conditions: string[] = [];
+    
+    if (filters.status) {
+      conditions.push(`o.status = $${queryParams.length + 1}`);
+      queryParams.push(filters.status);
+    }
+    
+    if (filters.customer_id) {
+      conditions.push(`o.customer_id = $${queryParams.length + 1}`);
+      queryParams.push(filters.customer_id);
+    }
+    
+    if (filters.start_date) {
+      conditions.push(`o.pickup_date >= $${queryParams.length + 1}`);
+      queryParams.push(filters.start_date);
+    }
+    
+    if (filters.end_date) {
+      conditions.push(`o.pickup_date <= $${queryParams.length + 1}`);
+      queryParams.push(filters.end_date);
+    }
+    
+    if (conditions.length > 0) {
+      queryText += ' WHERE ' + conditions.join(' AND ');
+    }
+  }
+  
+  queryText += ' ORDER BY o.created_at DESC';
+  
+  const result = await query(queryText, queryParams);
+  
+  // Group orders with their products
+  const ordersMap = new Map();
+  
+  result.rows.forEach((row: any) => {
+    if (!ordersMap.has(row.id)) {
+      // Create a new order entry
+      const order: any = { ...row };
+      order.line_items = [];
+      
+      // Add product if it exists
+      if (row.product_id) {
+        order.line_items.push({
+          product_id: row.product_id,
+          product_name: row.product_name,
+          product_description: row.product_description,
+          product_is_dangerous: row.product_is_dangerous,
+          hazard_code: row.hazard_code,
+          hazard_description1: row.hazard_description1
+        });
+      }
+      
+      // Remove product fields from the main order object
+      delete order.product_id;
+      delete order.product_name;
+      delete order.product_description;
+      delete order.product_is_dangerous;
+      delete order.hazard_code;
+      delete order.hazard_description1;
+      
+      ordersMap.set(row.id, order);
+    } else if (row.product_id) {
+      // Add product to existing order
+      const order = ordersMap.get(row.id);
+      
+      // Check if this product is already in the line items
+      const existingProduct = order.line_items.find(
+        (item: any) => item.product_id === row.product_id
+      );
+      
+      if (!existingProduct) {
+        order.line_items.push({
+          product_id: row.product_id,
+          product_name: row.product_name,
+          product_description: row.product_description,
+          product_is_dangerous: row.product_is_dangerous,
+          hazard_code: row.hazard_code,
+          hazard_description1: row.hazard_description1
+        });
+      }
+    }
+  });
+  
+  return Array.from(ordersMap.values());
 };

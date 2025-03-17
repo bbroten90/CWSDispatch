@@ -10,12 +10,15 @@ import {
 } from '../components/ui';
 import { MapPin, Truck, Package, DollarSign, Calendar, RefreshCw } from 'lucide-react';
 
+// This is a copy of the dispatchdashboard.tsx file, renamed to Dashboard.tsx
+// to fix the import error in App.tsx
+
 const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
-  const [warehouses, setWarehouses] = useState([]);
-  const [pendingOrders, setPendingOrders] = useState([]);
-  const [plannedShipments, setPlannedShipments] = useState([]);
+  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [pendingOrders, setPendingOrders] = useState<any[]>([]);
+  const [plannedShipments, setPlannedShipments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {

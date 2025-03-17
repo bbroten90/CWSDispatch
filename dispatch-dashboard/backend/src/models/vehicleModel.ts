@@ -1,5 +1,5 @@
 // src/models/vehicleModel.ts
-import { query } from '../config/database';
+import { query } from '../config/backend-database-connection';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Vehicle {
