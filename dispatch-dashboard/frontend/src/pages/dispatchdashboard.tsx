@@ -23,9 +23,13 @@ const Dashboard = () => {
     const fetchWarehouses = async () => {
       try {
         const response = await axios.get('/api/warehouses');
-        setWarehouses(response.data);
-        if (response.data.length > 0) {
-          setSelectedWarehouse(response.data[0].warehouse_id);
+        if (response.data.success && response.data.data) {
+          setWarehouses(response.data.data);
+          if (response.data.data.length > 0) {
+            setSelectedWarehouse(response.data.data[0].warehouse_id);
+          }
+        } else {
+          setWarehouses([]);
         }
       } catch (error) {
         console.error('Error fetching warehouses:', error);
@@ -52,8 +56,17 @@ const Dashboard = () => {
         axios.get(`/api/shipments?origin_warehouse_id=${selectedWarehouse}&planned_date=${formattedDate}`)
       ]);
       
-      setPendingOrders(ordersRes.data.data.orders);
-      setPlannedShipments(shipmentsRes.data.data.shipments);
+      if (ordersRes.data.success && ordersRes.data.data && ordersRes.data.data.orders) {
+        setPendingOrders(ordersRes.data.data.orders);
+      } else {
+        setPendingOrders([]);
+      }
+      
+      if (shipmentsRes.data.success && shipmentsRes.data.data && shipmentsRes.data.data.shipments) {
+        setPlannedShipments(shipmentsRes.data.data.shipments);
+      } else {
+        setPlannedShipments([]);
+      }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {

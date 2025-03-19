@@ -52,7 +52,7 @@ export interface UpdateVehicleDto {
 }
 
 export interface VehicleFilters {
-  status?: string;
+  is_active?: boolean;
   type?: string;
   available?: boolean;
 }
@@ -89,9 +89,9 @@ export const getVehicles = async (filters?: VehicleFilters): Promise<Vehicle[]> 
   if (filters) {
     const conditions: string[] = [];
     
-    if (filters.status) {
-      conditions.push(`status = $${queryParams.length + 1}`);
-      queryParams.push(filters.status);
+    if (filters.is_active !== undefined) {
+      conditions.push(`is_active = $${queryParams.length + 1}`);
+      queryParams.push(filters.is_active);
     }
     
     if (filters.type) {
@@ -101,7 +101,7 @@ export const getVehicles = async (filters?: VehicleFilters): Promise<Vehicle[]> 
     
     if (filters.available === true) {
       // This assumes a vehicle is available if it's active and not assigned to an active shipment
-      conditions.push(`status = 'active' AND id NOT IN (
+      conditions.push(`is_active = true AND id NOT IN (
         SELECT vehicle_id FROM shipments
         WHERE status IN ('planned', 'in_transit')
       )`);

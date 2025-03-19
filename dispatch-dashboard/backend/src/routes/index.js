@@ -9,6 +9,8 @@ const optimizeRouter = require('./optimizeRoutes.js');
 const customersRouter = require('./customers.js');
 const productsRouter = require('./products.js');
 const hazardsRouter = require('./hazards.js');
+const warehousesRouter = require('./warehouses.js');
+const manufacturersRouter = require('./manufacturers.js');
 const reportRouter = require('./reportRoutes.js');
 
 const router = express.Router();
@@ -28,6 +30,8 @@ router.use('/optimize', optimizeRouter);
 router.use('/customers', customersRouter);
 router.use('/products', productsRouter);
 router.use('/hazards', hazardsRouter);
+router.use('/warehouses', warehousesRouter);
+router.use('/manufacturers', manufacturersRouter);
 router.use('/reports', reportRouter);
 
 module.exports = router;

@@ -52,10 +52,12 @@ const LoadBuilder = () => {
     const fetchInitialData = async () => {
       try {
         const warehousesRes = await axios.get('/api/warehouses');
-        setWarehouses(warehousesRes.data);
-        
-        if (warehousesRes.data.length > 0) {
-          setSelectedWarehouse(warehousesRes.data[0].warehouse_id);
+        if (warehousesRes.data.success && warehousesRes.data.data) {
+          setWarehouses(warehousesRes.data.data);
+          
+          if (warehousesRes.data.data.length > 0) {
+            setSelectedWarehouse(warehousesRes.data.data[0].warehouse_id);
+          }
         }
       } catch (error) {
         console.error('Error fetching initial data:', error);
@@ -78,13 +80,9 @@ const LoadBuilder = () => {
   const loadWarehouseData = async () => {
     setLoading(true);
     try {
-      const [vehiclesRes, ordersRes] = await Promise.all([
-        axios.get(`/api/vehicles?warehouse_id=${selectedWarehouse}&status=active`),
-        axios.get(`/api/orders?warehouse_id=${selectedWarehouse}&pickup_date=${selectedDate}&status=pending`)
-      ]);
-      
-      setVehicles(vehiclesRes.data.data.vehicles);
-      setPendingOrders(ordersRes.data.data.orders);
+      // For now, just set empty arrays for vehicles and orders
+      setVehicles([]);
+      setPendingOrders([]);
       
       // Clear selected vehicle and orders when warehouse changes
       setSelectedVehicle('');

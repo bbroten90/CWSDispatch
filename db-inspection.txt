@@ -1,0 +1,373 @@
+Inspecting database schema...
+
+Found 16 tables:
+
+
+== TABLE: api_logs ==
+  - log_id (integer) NOT NULL DEFAULT nextval('api_logs_log_id_seq'::regclass)
+  - request_type (character varying) NOT NULL
+  - endpoint (character varying) NOT NULL
+  - request_body (text) NULL
+  - response_body (text) NULL
+  - status_code (integer) NULL
+  - ip_address (character varying) NULL
+  - user_agent (text) NULL
+  - duration_ms (integer) NULL
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  No data in this table
+
+== TABLE: customers ==
+  - customer_id (integer) NOT NULL DEFAULT nextval('customers_customer_id_seq'::regclass)
+  - company_name (character varying) NOT NULL
+  - address (character varying) NULL
+  - city (character varying) NOT NULL
+  - province (character varying) NOT NULL
+  - postal_code (character varying) NULL
+  - contact_name (character varying) NULL
+  - contact_email (character varying) NULL
+  - contact_phone (character varying) NULL
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+
+  Sample data (3 rows):
+  Row 1: {
+  "customer_id": 340001,
+  "company_name": "Gilbert Plains Consumers Cooperative Ltd.",
+  "address": "SW-9-25-22-W1 Lot 1",
+  "city": "Gilbert Plain...
+  Row 2: {
+  "customer_id": 340070,
+  "company_name": "Heritage Co-op",
+  "address": "100 Heritage Way",
+  "city": "Minnedosa",
+  "province": "MB",
+  "postal_c...
+  Row 3: {
+  "customer_id": 340081,
+  "company_name": "Nutrien Ag Solutions (Canada) Inc.",
+  "address": "SE 10-13-7 E",
+  "city": "Beausejour",
+  "province": ...
+
+== TABLE: driver_availability ==
+  - availability_id (integer) NOT NULL DEFAULT nextval('driver_availability_availability_id_seq'::regclass)
+  - driver_id (integer) NULL
+  - date (date) NOT NULL
+  - is_available (boolean) NULL DEFAULT true
+  - reason (character varying) NULL
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  No data in this table
+
+== TABLE: drivers ==
+  - driver_id (integer) NOT NULL DEFAULT nextval('drivers_driver_id_seq'::regclass)
+  - first_name (character varying) NOT NULL
+  - last_name (character varying) NOT NULL
+  - email (character varying) NULL
+  - phone (character varying) NULL
+  - license_number (character varying) NULL
+  - license_expiry (date) NULL
+  - home_warehouse_id (integer) NULL
+  - is_active (boolean) NULL DEFAULT true
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  No data in this table
+
+== TABLE: hazards ==
+  - hazard_pk (integer) NOT NULL
+  - hazard_code (character varying) NOT NULL
+  - description1 (text) NULL
+  - description2 (text) NULL
+  - description3 (text) NULL
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+
+  Sample data (3 rows):
+  Row 1: {
+  "hazard_pk": 28,
+  "hazard_code": "7",
+  "description1": "UN1993, Flammable Liquids, N.O.S.",
+  "description2": "(Xylenes) Malathion",
+  "descript...
+  Row 2: {
+  "hazard_pk": 29,
+  "hazard_code": "8",
+  "description1": "UN2902, Environmentally Hazadous Substances",
+  "description2": "Liquid, N.O.S (2,4-D Es...
+  Row 3: {
+  "hazard_pk": 30,
+  "hazard_code": "9",
+  "description1": "UN2902, Pesticides, Liquid, Toxic, N.O.S.",
+  "description2": "(Bromoxynil Solution)",
+ ...
+
+== TABLE: manufacturers ==
+  - manufacturer_id (integer) NOT NULL DEFAULT nextval('manufacturers_manufacturer_id_seq'::regclass)
+  - name (character varying) NOT NULL
+  - api_key (character varying) NULL
+  - contact_name (character varying) NULL
+  - contact_email (character varying) NULL
+  - contact_phone (character varying) NULL
+  - webhook_url (character varying) NULL
+  - is_active (boolean) NULL DEFAULT true
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+
+  Sample data (3 rows):
+  Row 1: {
+  "manufacturer_id": 10016,
+  "name": "FEDERATED CO-OPERATIVES LIMITED",
+  "api_key": null,
+  "contact_name": null,
+  "contact_email": null,
+  "cont...
+  Row 2: {
+  "manufacturer_id": 9953,
+  "name": "BASF",
+  "api_key": null,
+  "contact_name": null,
+  "contact_email": null,
+  "contact_phone": null,
+  "webhook...
+  Row 3: {
+  "manufacturer_id": 1100,
+  "name": "BAYER",
+  "api_key": "Regina",
+  "contact_name": null,
+  "contact_email": null,
+  "contact_phone": null,
+  "we...
+
+== TABLE: optimization_logs ==
+  - log_id (integer) NOT NULL DEFAULT nextval('optimization_logs_log_id_seq'::regclass)
+  - optimization_type (character varying) NOT NULL
+  - input_parameters (text) NULL
+  - output_result (text) NULL
+  - execution_time_ms (integer) NULL
+  - success (boolean) NULL
+  - error_message (text) NULL
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  No data in this table
+
+== TABLE: order_headers ==
+  - order_id (integer) NOT NULL DEFAULT nextval('order_headers_order_id_seq'::regclass)
+  - document_id (character varying) NOT NULL
+  - manufacturer_id (integer) NULL
+  - order_date (date) NOT NULL
+  - po_number (character varying) NULL
+  - requested_shipment_date (date) NULL
+  - requested_delivery_date (date) NULL
+  - customer_id (integer) NULL
+  - special_requirements (text) NULL
+  - status (character varying) NULL DEFAULT 'RECEIVED'::character varying
+  - total_quantity (integer) NULL
+  - total_weight_kg (numeric) NULL
+  - total_volume_cubic_m (numeric) NULL
+  - estimated_revenue (numeric) NULL
+  - actual_revenue (numeric) NULL
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+
+  Sample data (3 rows):
+  Row 1: {
+  "order_id": 11150,
+  "document_id": "PO-1741982973",
+  "manufacturer_id": 9953,
+  "order_date": "2025-03-14T05:00:00.000Z",
+  "po_number": "",
+  "...
+  Row 2: {
+  "order_id": 2824,
+  "document_id": "PO-1741966956",
+  "manufacturer_id": 10016,
+  "order_date": "2025-03-14T05:00:00.000Z",
+  "po_number": "",
+  "...
+  Row 3: {
+  "order_id": 2107,
+  "document_id": "PO-1741970051",
+  "manufacturer_id": 9953,
+  "order_date": "2025-03-14T05:00:00.000Z",
+  "po_number": "",
+  "r...
+
+== TABLE: order_line_items ==
+  - line_item_id (integer) NOT NULL DEFAULT nextval('order_line_items_line_item_id_seq'::regclass)
+  - order_id (integer) NULL
+  - product_id (character varying) NULL
+  - quantity (integer) NOT NULL
+  - weight_kg (numeric) NOT NULL
+  - volume_cubic_m (numeric) NULL
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  No data in this table
+
+== TABLE: products ==
+  - product_id (character varying) NOT NULL
+  - manufacturer_id (integer) NULL
+  - name (character varying) NOT NULL
+  - description (text) NULL
+  - weight_kg (numeric) NOT NULL
+  - volume_cubic_m (numeric) NULL
+  - requires_refrigeration (boolean) NULL DEFAULT false
+  - requires_heating (boolean) NULL DEFAULT false
+  - is_dangerous_good (boolean) NULL DEFAULT false
+  - tdg_number (character varying) NULL
+  - is_active (boolean) NULL DEFAULT true
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+
+  Sample data (3 rows):
+  Row 1: {
+  "product_id": "10503620-D",
+  "manufacturer_id": null,
+  "name": "Round Up Transorb HC *DAMAGED*",
+  "description": "Round Up Transorb HC *DAMAGED...
+  Row 2: {
+  "product_id": "12694930",
+  "manufacturer_id": null,
+  "name": "Round Up Transorb HC",
+  "description": "Round Up Transorb HC",
+  "weight_kg": "14...
+  Row 3: {
+  "product_id": "10543148",
+  "manufacturer_id": null,
+  "name": "Round Up Transorb HC",
+  "description": "Round Up Transorb HC",
+  "weight_kg": "16...
+
+== TABLE: rate_tables ==
+  - rate_id (integer) NOT NULL DEFAULT nextval('rate_tables_rate_id_seq'::regclass)
+  - destination_city (character varying) NULL
+  - destination_province (character varying) NULL
+  - min_weight_lb (numeric) NULL
+  - weight_per_0_1999lbs (numeric) NULL
+  - weight_per_2000_4999lbs (numeric) NULL
+  - weight_per_5000_9999lbs (numeric) NULL
+  - weight_per_10000_19999lbs (numeric) NULL
+  - weight_per_20000_29999lbs (numeric) NULL
+  - weight_per_30000_39999lbs (numeric) NULL
+  - weight_over_4000lbs (numeric) NULL
+  - tl_rate (numeric) NULL
+  - origin_warehouse_id (character varying) NULL
+  - customer_name (character varying) NULL
+
+  Sample data (3 rows):
+  Row 1: {
+  "rate_id": 1,
+  "destination_city": "Acadia Valley",
+  "destination_province": "AB",
+  "min_weight_lb": "195.57",
+  "weight_per_0_1999lbs": "17.35...
+  Row 2: {
+  "rate_id": 2,
+  "destination_city": "Airdrie",
+  "destination_province": "AB",
+  "min_weight_lb": "195.57",
+  "weight_per_0_1999lbs": "5.30",
+  "w...
+  Row 3: {
+  "rate_id": 3,
+  "destination_city": "Alix",
+  "destination_province": "AB",
+  "min_weight_lb": "195.57",
+  "weight_per_0_1999lbs": "8.73",
+  "weig...
+
+== TABLE: shipment_orders ==
+  - shipment_order_id (integer) NOT NULL DEFAULT nextval('shipment_orders_shipment_order_id_seq'::regclass)
+  - shipment_id (integer) NULL
+  - order_id (integer) NULL
+  - stop_sequence (integer) NOT NULL
+  - estimated_arrival_time (timestamp without time zone) NULL
+  - actual_arrival_time (timestamp without time zone) NULL
+  - status (character varying) NULL DEFAULT 'PLANNED'::character varying
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  No data in this table
+
+== TABLE: shipments ==
+  - shipment_id (integer) NOT NULL DEFAULT nextval('shipments_shipment_id_seq'::regclass)
+  - shipment_date (date) NOT NULL
+  - origin_warehouse_id (integer) NULL
+  - truck_id (integer) NULL
+  - trailer_id (integer) NULL
+  - driver_id (integer) NULL
+  - status (character varying) NULL DEFAULT 'PLANNED'::character varying
+  - total_distance_km (numeric) NULL
+  - estimated_start_time (timestamp without time zone) NULL
+  - actual_start_time (timestamp without time zone) NULL
+  - estimated_completion_time (timestamp without time zone) NULL
+  - actual_completion_time (timestamp without time zone) NULL
+  - total_weight_kg (numeric) NULL
+  - total_volume_cubic_m (numeric) NULL
+  - total_revenue (numeric) NULL
+  - notes (text) NULL
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  No data in this table
+
+== TABLE: vehicle_availability ==
+  - availability_id (integer) NOT NULL DEFAULT nextval('vehicle_availability_availability_id_seq'::regclass)
+  - vehicle_id (integer) NULL
+  - date (date) NOT NULL
+  - is_available (boolean) NULL DEFAULT true
+  - reason (character varying) NULL
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  No data in this table
+
+== TABLE: vehicles ==
+  - vehicle_id (integer) NOT NULL DEFAULT nextval('vehicles_vehicle_id_seq'::regclass)
+  - samsara_id (character varying) NULL
+  - type (character varying) NOT NULL
+  - license_plate (character varying) NULL
+  - make (character varying) NULL
+  - model (character varying) NULL
+  - year (integer) NULL
+  - max_weight_kg (numeric) NOT NULL
+  - volume_capacity_cubic_m (numeric) NULL
+  - has_refrigeration (boolean) NULL DEFAULT false
+  - has_heating (boolean) NULL DEFAULT false
+  - has_tdg_capacity (boolean) NULL DEFAULT false
+  - home_warehouse_id (integer) NULL
+  - is_active (boolean) NULL DEFAULT true
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  No data in this table
+
+== TABLE: warehouses ==
+  - warehouse_id (integer) NOT NULL DEFAULT nextval('warehouses_warehouse_id_seq'::regclass)
+  - name (character varying) NOT NULL
+  - address (character varying) NOT NULL
+  - city (character varying) NOT NULL
+  - province (character varying) NOT NULL
+  - postal_code (character varying) NOT NULL
+  - loading_capacity (integer) NULL
+  - storage_capacity (numeric) NULL
+  - is_active (boolean) NULL DEFAULT true
+  - created_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+  - updated_at (timestamp without time zone) NULL DEFAULT CURRENT_TIMESTAMP
+
+  Sample data (3 rows):
+  Row 1: {
+  "warehouse_id": 1210,
+  "name": "CWS Regina",
+  "address": "1210 Pettigrew Ave",
+  "city": "Regina",
+  "province": "Saskachewan",
+  "postal_code":...
+  Row 2: {
+  "warehouse_id": 250,
+  "name": "CWS Henderson",
+  "address": "250 Henderson Drive",
+  "city": "Regina",
+  "province": "Saskachewan",
+  "postal_cod...
+  Row 3: {
+  "warehouse_id": 1664,
+  "name": "CWS Winnipeg",
+  "address": "1664 Seel Ave",
+  "city": "Winnipeg",
+  "province": "Manitoba",
+  "postal_code": "R3...

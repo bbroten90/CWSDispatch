@@ -1,0 +1,237 @@
+import base64
+import os
+import json
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from google.cloud import documentai
+from google.cloud import storage
+from google.cloud import secretmanager
+import psycopg2  # For PostgreSQL
+import tempfile
+
+def process_gmail_orders(event, context):
+    """
+    Cloud Function triggered by Cloud Scheduler to:
+    1. Fetch emails with "OrderPDFs" label from Gmail
+    2. Extract and save PDFs to Cloud Storage
+    3. Process PDFs with Document AI
+    4. Update SQL database with extracted information
+    """
+    # Set your project information
+    project_id = 'dispatch-dashboard-01'
+    location = 'us-central1'  # The region where your Document AI processor is located
+    processor_id = 'OrderReader'  # Your Document AI processor ID
+    bucket_name = 'cwsorders'
+    
+    # Cloud SQL connection info
+    db_user = 'dispatch-admin'
+    db_password = 'Lola443710!'
+    db_name = 'dispatch-dashboard'
+    db_connection_name = 'dispatch-dashboard-01:northamerica-northeast1:dispatch-db'  # Cloud SQL instance connection name
+    table_name = 'orders_table'
+
+    # Get credentials from Secret Manager
+    secret_id = 'gmail-docai-credentials'  # The name you gave your secret
+    
+    secret_client = secretmanager.SecretManagerServiceClient()
+    secret_name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
+    response = secret_client.access_secret_version(name=secret_name)
+    credentials_json = response.payload.data.decode("UTF-8")
+    credentials_info = json.loads(credentials_json)
+    
+    # Initialize Gmail API
+    SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+    credentials = service_account.Credentials.from_service_account_info(
+        credentials_info, scopes=SCOPES)
+    gmail_service = build('gmail', 'v1', credentials=credentials)
+
+    # Get all emails with the "OrderPDFs" label
+    results = gmail_service.users().messages().list(
+        userId='me', 
+        labelIds=['OrderPDFs'],  # You'll need to get the actual label ID from Gmail
+        q='has:attachment'
+    ).execute()
+
+    messages = results.get('messages', [])
+    
+    if not messages:
+        print('No new order emails found.')
+        return
+
+    # Initialize Document AI client
+    docai_client = documentai.DocumentProcessorServiceClient(
+        credentials=service_account.Credentials.from_service_account_file('credentials.json')
+    )
+    processor_name = docai_client.processor_path(project_id, location, processor_id)
+
+    # Initialize Storage client
+    storage_client = storage.Client(
+        credentials=service_account.Credentials.from_service_account_file('credentials.json')
+    )
+    bucket = storage_client.bucket(bucket_name)
+    
+    # Initialize PostgreSQL connection
+    # When running in Cloud Functions, use unix_socket for connection
+    
+    # For local testing, use the TCP connection
+    if os.environ.get('LOCAL_DEVELOPMENT'):
+        conn = psycopg2.connect(
+            host='127.0.0.1',  # Use Cloud SQL Proxy for local testing
+            user=db_user,
+            password=db_password,
+            dbname=db_name
+        )
+    else:
+        # For production in Cloud Functions
+        conn = psycopg2.connect(
+            host=f'/cloudsql/{db_connection_name}',
+            user=db_user,
+            password=db_password,
+            dbname=db_name
+        )
+
+    for message in messages:
+        # Get the message details
+        msg = gmail_service.users().messages().get(
+            userId='me', id=message['id']).execute()
+        
+        # Get all attachments
+        for part in msg['payload'].get('parts', []):
+            if part.get('filename') and part.get('filename').lower().endswith('.pdf'):
+                attachment_id = part['body']['attachmentId']
+                attachment = gmail_service.users().messages().attachments().get(
+                    userId='me', messageId=message['id'], id=attachment_id
+                ).execute()
+                
+                file_data = base64.urlsafe_b64decode(attachment['data'])
+                
+                # Save PDF to temporary file
+                with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
+                    temp_pdf.write(file_data)
+                    temp_path = temp_pdf.name
+                
+                # Upload PDF to Cloud Storage
+                email_date = int(msg['internalDate']) // 1000  # Convert to seconds
+                email_subject = next((header['value'] for header in msg['payload']['headers'] 
+                                    if header['name'].lower() == 'subject'), 'No Subject')
+                
+                blob_name = f"orders/{email_date}_{email_subject}_{part['filename']}"
+                blob = bucket.blob(blob_name)
+                blob.upload_from_filename(temp_path)
+                
+                # Process with Document AI
+                with open(temp_path, "rb") as pdf_file:
+                    pdf_content = pdf_file.read()
+                
+                # Use Document AI to process the PDF
+                document = {"content": pdf_content, "mime_type": "application/pdf"}
+                request = {"name": processor_name, "raw_document": document}
+                result = docai_client.process_document(request=request)
+                document = result.document
+                
+                # Extract the required fields based on your Document AI processor configuration
+                # This will depend on your specific Document AI setup
+                order_data = {}
+                for entity in document.entities:
+                    order_data[entity.type_] = entity.mention_text
+                
+                # Now update your SQL database with both header and line item data
+                cursor = conn.cursor()
+                
+                # 1. Insert Order Header information
+                header_query = """
+                INSERT INTO Order_headers 
+                (order_id, customer_name, customer_id, order_date, total_amount, 
+                shipping_address, billing_address, payment_method, email_id, pdf_path)
+                VALUES 
+                (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                
+                header_values = (
+                    order_data.get('order_id', 'Unknown'),
+                    order_data.get('customer_name', 'Unknown'),
+                    order_data.get('customer_id', 'Unknown'),
+                    order_data.get('order_date', 'Unknown'),
+                    float(order_data.get('total_amount', 0)),
+                    order_data.get('shipping_address', 'Unknown'),
+                    order_data.get('billing_address', 'Unknown'),
+                    order_data.get('payment_method', 'Unknown'),
+                    message['id'],
+                    f"gs://{bucket_name}/{blob_name}"
+                )
+                
+                cursor.execute(header_query, header_values)
+                
+                # 2. Insert Order Line Items
+                # This assumes your Document AI processor extracts line items as an array/list
+                # The structure will depend on how your processor is configured to extract this data
+                if 'line_items' in order_data and isinstance(order_data['line_items'], list):
+                    line_items = order_data['line_items']
+                else:
+                    # If your Document AI doesn't structure line items as a list,
+                    # you might need custom logic here to parse them from the document
+                    # This is just a placeholder example extraction
+                    line_items = []
+                    
+                    # Look for entities that might be line items
+                    # Adjust this logic based on your Document AI processor's output
+                    item_counter = 1
+                    current_item = {}
+                    
+                    for entity in document.entities:
+                        # Example pattern detection for line items
+                        if entity.type_.startswith('line_item.'):
+                            # Extract the property name after the dot
+                            prop = entity.type_.split('.')[1]
+                            
+                            # If we find an item_number and we already have a current_item, save it and start a new one
+                            if prop == 'item_number' and current_item:
+                                line_items.append(current_item)
+                                current_item = {}
+                            
+                            # Add this property to the current item
+                            current_item[prop] = entity.mention_text
+                    
+                    # Don't forget to add the last item if it exists
+                    if current_item:
+                        line_items.append(current_item)
+                
+                # Insert each line item
+                line_item_query = """
+                INSERT INTO order_line_items
+                (order_id, line_number, product_id, product_name, quantity, unit_price, line_total)
+                VALUES
+                (%s, %s, %s, %s, %s, %s, %s)
+                """
+                
+                for idx, item in enumerate(line_items, 1):
+                    line_item_values = (
+                        order_data.get('order_id', 'Unknown'),
+                        idx,  # Line number
+                        item.get('product_id', 'Unknown'),
+                        item.get('product_name', 'Unknown'),
+                        float(item.get('quantity', 0)),
+                        float(item.get('unit_price', 0)),
+                        float(item.get('line_total', 0))
+                    )
+                    cursor.execute(line_item_query, line_item_values)
+                
+                conn.commit()
+                cursor.close()
+                print(f"Processed order: {order_data.get('order_id', 'Unknown')}")
+                
+                # Delete temporary file
+                os.unlink(temp_path)
+                
+                # Optionally mark the email as read or apply another label
+                gmail_service.users().messages().modify(
+                    userId='me',
+                    id=message['id'],
+                    body={'removeLabelIds': ['UNREAD'], 'addLabelIds': ['Label_Processed']}
+                ).execute()
+
+    # Close database connection
+    conn.close()
+    
+    print(f"Processed {len(messages)} order emails")
+    return f"Processed {len(messages)} order emails"

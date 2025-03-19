@@ -19,7 +19,8 @@ export const getAllVehicles = async (req: Request, res: Response) => {
   const filters: VehicleFilters = {};
   
   // Extract and validate query parameters
-  if (req.query.status) filters.status = req.query.status as string;
+  if (req.query.status === 'active') filters.is_active = true;
+  else if (req.query.status === 'inactive') filters.is_active = false;
   if (req.query.type) filters.type = req.query.type as string;
   if (req.query.available === 'true') filters.available = true;
   

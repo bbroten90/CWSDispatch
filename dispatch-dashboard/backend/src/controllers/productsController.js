@@ -14,7 +14,7 @@ exports.getProducts = async (req, res) => {
       SELECT p.*, h.hazard_code, h.description1 as hazard_description1, 
              h.description2 as hazard_description2, h.description3 as hazard_description3
       FROM products p
-      LEFT JOIN hazards h ON p.hazard_pk = h.hazard_pk
+      LEFT JOIN hazards h ON p.tdg_number = h.hazard_code
     `;
     
     const queryParams = [];
@@ -22,15 +22,17 @@ exports.getProducts = async (req, res) => {
     
     // Add search condition if provided
     if (search) {
+      const paramIndex = queryParams.length + 1;
       queryParams.push(`%${search}%`);
-      conditions.push(`(p.product_id ILIKE $${queryParams.length} OR p.description ILIKE $${queryParams.length})`);
+      queryParams.push(`%${search}%`);
+      conditions.push(`(LOWER(p.product_id) LIKE LOWER($${paramIndex}) OR LOWER(p.description) LIKE LOWER($${paramIndex + 1}))`);
     }
     
     // Add hazardous filter if provided
     if (hazardous === 'true') {
-      conditions.push('p.hazard_pk IS NOT NULL');
+      conditions.push('p.is_dangerous_good = true');
     } else if (hazardous === 'false') {
-      conditions.push('p.hazard_pk IS NULL');
+      conditions.push('p.is_dangerous_good = false');
     }
     
     // Add conditions to query
@@ -42,7 +44,26 @@ exports.getProducts = async (req, res) => {
     query += ' ORDER BY p.product_id';
     
     const result = await db.query(query, queryParams);
-    res.json({ success: true, data: result.rows });
+    
+    // Convert weight_kg to weight_lbs for frontend and include warehouse information
+    const productsWithLbs = await Promise.all(result.rows.map(async product => {
+      // Get warehouse name if warehouse_id is present
+      let warehouseName = null;
+      if (product.warehouse_id) {
+        const warehouseResult = await db.query('SELECT name FROM warehouses WHERE warehouse_id = $1', [product.warehouse_id]);
+        if (warehouseResult.rows.length > 0) {
+          warehouseName = warehouseResult.rows[0].name;
+        }
+      }
+      
+      return {
+        ...product,
+        weight_lbs: product.weight_kg * 2.20462, // Convert kg to lbs
+        warehouse_name: warehouseName
+      };
+    }));
+    
+    res.json({ success: true, data: productsWithLbs });
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -61,7 +82,7 @@ exports.getProductById = async (req, res) => {
       SELECT p.*, h.hazard_code, h.description1 as hazard_description1, 
              h.description2 as hazard_description2, h.description3 as hazard_description3
       FROM products p
-      LEFT JOIN hazards h ON p.hazard_pk = h.hazard_pk
+      LEFT JOIN hazards h ON p.tdg_number = h.hazard_code
       WHERE p.product_id = $1
     `, [productId]);
     
@@ -69,7 +90,25 @@ exports.getProductById = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
     
-    res.json({ success: true, data: result.rows[0] });
+    // Convert weight_kg to weight_lbs for frontend and include warehouse information
+    const product = result.rows[0];
+    
+    // Get warehouse name if warehouse_id is present
+    let warehouseName = null;
+    if (product.warehouse_id) {
+      const warehouseResult = await db.query('SELECT name FROM warehouses WHERE warehouse_id = $1', [product.warehouse_id]);
+      if (warehouseResult.rows.length > 0) {
+        warehouseName = warehouseResult.rows[0].name;
+      }
+    }
+    
+    const productWithLbs = {
+      ...product,
+      weight_lbs: product.weight_kg * 2.20462, // Convert kg to lbs
+      warehouse_name: warehouseName
+    };
+    
+    res.json({ success: true, data: productWithLbs });
   } catch (error) {
     console.error('Error fetching product:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -86,11 +125,30 @@ exports.getHazardousProducts = async (req, res) => {
       SELECT p.*, h.hazard_code, h.description1 as hazard_description1, 
              h.description2 as hazard_description2, h.description3 as hazard_description3
       FROM products p
-      JOIN hazards h ON p.hazard_pk = h.hazard_pk
+      JOIN hazards h ON p.tdg_number = h.hazard_code
+      WHERE p.is_dangerous_good = true
       ORDER BY p.product_id
     `);
     
-    res.json({ success: true, data: result.rows });
+    // Convert weight_kg to weight_lbs for frontend and include warehouse information
+    const productsWithLbs = await Promise.all(result.rows.map(async product => {
+      // Get warehouse name if warehouse_id is present
+      let warehouseName = null;
+      if (product.warehouse_id) {
+        const warehouseResult = await db.query('SELECT name FROM warehouses WHERE warehouse_id = $1', [product.warehouse_id]);
+        if (warehouseResult.rows.length > 0) {
+          warehouseName = warehouseResult.rows[0].name;
+        }
+      }
+      
+      return {
+        ...product,
+        weight_lbs: product.weight_kg * 2.20462, // Convert kg to lbs
+        warehouse_name: warehouseName
+      };
+    }));
+    
+    res.json({ success: true, data: productsWithLbs });
   } catch (error) {
     console.error('Error fetching hazardous products:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -114,14 +172,15 @@ exports.createProduct = async (req, res) => {
       is_dangerous_good,
       tdg_number,
       hazard_pk,
-      location,
+      warehouse_id,
       customer_code,
+      quantity_on_hand,
+      location,
       do_not_ship,
       storage_charge_per_pallet,
       handling_charge_per_pallet,
       unit,
       units_per_pallet,
-      quantity_on_hand,
       pallet_stack_height,
       track_by_lot,
       str_group
@@ -139,7 +198,8 @@ exports.createProduct = async (req, res) => {
     let query = `
       INSERT INTO products (
         product_id, name, description, weight_kg, volume_cubic_m, 
-        requires_refrigeration, requires_heating, is_dangerous_good, tdg_number, hazard_pk
+        requires_refrigeration, requires_heating, is_dangerous_good, tdg_number,
+        warehouse_id, customer_code, quantity_on_hand
     `;
     
     // Add optional fields if they exist in the table
@@ -152,18 +212,16 @@ exports.createProduct = async (req, res) => {
     const columns = columnCheck.rows.map(row => row.column_name);
     
     if (columns.includes('location')) query += ', location';
-    if (columns.includes('customer_code')) query += ', customer_code';
     if (columns.includes('do_not_ship')) query += ', do_not_ship';
     if (columns.includes('storage_charge_per_pallet')) query += ', storage_charge_per_pallet';
     if (columns.includes('handling_charge_per_pallet')) query += ', handling_charge_per_pallet';
     if (columns.includes('unit')) query += ', unit';
     if (columns.includes('units_per_pallet')) query += ', units_per_pallet';
-    if (columns.includes('quantity_on_hand')) query += ', quantity_on_hand';
     if (columns.includes('pallet_stack_height')) query += ', pallet_stack_height';
     if (columns.includes('track_by_lot')) query += ', track_by_lot';
     if (columns.includes('str_group')) query += ', str_group';
     
-    query += ') VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10';
+    query += ') VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12';
     
     const params = [
       product_id,
@@ -175,18 +233,16 @@ exports.createProduct = async (req, res) => {
       requires_heating || false,
       is_dangerous_good || false,
       tdg_number,
-      hazard_pk
+      warehouse_id,
+      customer_code,
+      quantity_on_hand || 0
     ];
     
     // Add optional parameters if their columns exist
-    let paramIndex = 11;
+    let paramIndex = 13;
     if (columns.includes('location')) {
       query += `, $${paramIndex++}`;
       params.push(location);
-    }
-    if (columns.includes('customer_code')) {
-      query += `, $${paramIndex++}`;
-      params.push(customer_code);
     }
     if (columns.includes('do_not_ship')) {
       query += `, $${paramIndex++}`;
@@ -208,10 +264,6 @@ exports.createProduct = async (req, res) => {
       query += `, $${paramIndex++}`;
       params.push(units_per_pallet || 0);
     }
-    if (columns.includes('quantity_on_hand')) {
-      query += `, $${paramIndex++}`;
-      params.push(quantity_on_hand || 0);
-    }
     if (columns.includes('pallet_stack_height')) {
       query += `, $${paramIndex++}`;
       params.push(pallet_stack_height || 0);
@@ -229,7 +281,13 @@ exports.createProduct = async (req, res) => {
     
     const result = await db.query(query, params);
     
-    res.status(201).json({ success: true, data: result.rows[0] });
+    // Convert weight_kg to weight_lbs for frontend
+    const productWithLbs = {
+      ...result.rows[0],
+      weight_lbs: result.rows[0].weight_kg * 2.20462 // Convert kg to lbs
+    };
+    
+    res.status(201).json({ success: true, data: productWithLbs });
   } catch (error) {
     console.error('Error creating product:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -253,14 +311,15 @@ exports.updateProduct = async (req, res) => {
       is_dangerous_good,
       tdg_number,
       hazard_pk,
-      location,
+      warehouse_id,
       customer_code,
+      quantity_on_hand,
+      location,
       do_not_ship,
       storage_charge_per_pallet,
       handling_charge_per_pallet,
       unit,
       units_per_pallet,
-      quantity_on_hand,
       pallet_stack_height,
       track_by_lot,
       str_group
@@ -276,15 +335,17 @@ exports.updateProduct = async (req, res) => {
     // Start building the query
     let query = `
       UPDATE products SET
-        name = $1,
-        description = $2,
-        weight_kg = $3,
-        volume_cubic_m = $4,
-        requires_refrigeration = $5,
-        requires_heating = $6,
-        is_dangerous_good = $7,
+        name = $1, 
+        description = $2, 
+        weight_kg = $3, 
+        volume_cubic_m = $4, 
+        requires_refrigeration = $5, 
+        requires_heating = $6, 
+        is_dangerous_good = $7, 
         tdg_number = $8,
-        hazard_pk = $9
+        warehouse_id = $9,
+        customer_code = $10,
+        quantity_on_hand = $11
     `;
     
     const params = [
@@ -296,7 +357,9 @@ exports.updateProduct = async (req, res) => {
       requires_heating || false,
       is_dangerous_good || false,
       tdg_number,
-      hazard_pk
+      warehouse_id,
+      customer_code,
+      quantity_on_hand || 0
     ];
     
     // Add optional fields if they exist in the table
@@ -308,14 +371,10 @@ exports.updateProduct = async (req, res) => {
     
     const columns = columnCheck.rows.map(row => row.column_name);
     
-    let paramIndex = 10;
+    let paramIndex = 13;
     if (columns.includes('location')) {
       query += `, location = $${paramIndex++}`;
       params.push(location);
-    }
-    if (columns.includes('customer_code')) {
-      query += `, customer_code = $${paramIndex++}`;
-      params.push(customer_code);
     }
     if (columns.includes('do_not_ship')) {
       query += `, do_not_ship = $${paramIndex++}`;
@@ -337,10 +396,6 @@ exports.updateProduct = async (req, res) => {
       query += `, units_per_pallet = $${paramIndex++}`;
       params.push(units_per_pallet || 0);
     }
-    if (columns.includes('quantity_on_hand')) {
-      query += `, quantity_on_hand = $${paramIndex++}`;
-      params.push(quantity_on_hand || 0);
-    }
     if (columns.includes('pallet_stack_height')) {
       query += `, pallet_stack_height = $${paramIndex++}`;
       params.push(pallet_stack_height || 0);
@@ -359,7 +414,13 @@ exports.updateProduct = async (req, res) => {
     
     const result = await db.query(query, params);
     
-    res.json({ success: true, data: result.rows[0] });
+    // Convert weight_kg to weight_lbs for frontend
+    const productWithLbs = {
+      ...result.rows[0],
+      weight_lbs: result.rows[0].weight_kg * 2.20462 // Convert kg to lbs
+    };
+    
+    res.json({ success: true, data: productWithLbs });
   } catch (error) {
     console.error('Error updating product:', error);
     res.status(500).json({ success: false, error: error.message });

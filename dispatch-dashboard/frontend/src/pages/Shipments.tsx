@@ -63,10 +63,14 @@ const Shipments = () => {
     const fetchInitialData = async () => {
       try {
         const warehousesRes = await axios.get('/api/warehouses');
-        setWarehouses(warehousesRes.data);
-        
-        if (warehousesRes.data.length > 0) {
-          setSelectedWarehouse(warehousesRes.data[0].warehouse_id);
+        if (warehousesRes.data.success && warehousesRes.data.data) {
+          setWarehouses(warehousesRes.data.data);
+          
+          if (warehousesRes.data.data.length > 0) {
+            setSelectedWarehouse(warehousesRes.data.data[0].warehouse_id);
+          }
+        } else {
+          setWarehouses([]);
         }
         
         // Load shipments with default filters
@@ -95,7 +99,11 @@ const Shipments = () => {
       });
       
       const response = await axios.get('/api/shipments', { params: filters });
-      setShipments(response.data.data.shipments);
+      if (response.data.success && response.data.data && response.data.data.shipments) {
+        setShipments(response.data.data.shipments);
+      } else {
+        setShipments([]);
+      }
     } catch (error) {
       console.error('Error loading shipments:', error);
     } finally {
@@ -113,8 +121,12 @@ const Shipments = () => {
   const getShipmentDetails = async (shipmentId: number) => {
     try {
       const response = await axios.get(`/api/shipments/${shipmentId}/details`);
-      setSelectedShipment(response.data.data.shipment);
-      setShowDetailsDialog(true);
+      if (response.data.success && response.data.data && response.data.data.shipment) {
+        setSelectedShipment(response.data.data.shipment);
+        setShowDetailsDialog(true);
+      } else {
+        console.error('Invalid shipment details response format');
+      }
     } catch (error) {
       console.error('Error loading shipment details:', error);
     }

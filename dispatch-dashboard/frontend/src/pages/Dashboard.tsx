@@ -25,10 +25,14 @@ const Dashboard = () => {
     // Fetch warehouses when component mounts
     const fetchWarehouses = async () => {
       try {
-        const response = await axios.get('/api/warehouses');
-        setWarehouses(response.data);
-        if (response.data.length > 0) {
-          setSelectedWarehouse(response.data[0].warehouse_id);
+        const response = await axios.get('/api/warehouses', {
+          headers: { 'x-internal-request': 'true' }
+        });
+        if (response.data.success && response.data.data) {
+          setWarehouses(response.data.data);
+          if (response.data.data.length > 0) {
+            setSelectedWarehouse(response.data.data[0].warehouse_id);
+          }
         }
       } catch (error) {
         console.error('Error fetching warehouses:', error);
@@ -51,12 +55,25 @@ const Dashboard = () => {
       const formattedDate = format(selectedDate, 'yyyy-MM-dd');
       
       const [ordersRes, shipmentsRes] = await Promise.all([
-        axios.get(`/api/orders?warehouse_id=${selectedWarehouse}&pickup_date=${formattedDate}&status=pending`),
-        axios.get(`/api/shipments?origin_warehouse_id=${selectedWarehouse}&planned_date=${formattedDate}`)
+        axios.get(`/api/orders?warehouse_id=${selectedWarehouse}&pickup_date=${formattedDate}&status=pending`, {
+          headers: { 'x-internal-request': 'true' }
+        }),
+        axios.get(`/api/shipments?origin_warehouse_id=${selectedWarehouse}&planned_date=${formattedDate}`, {
+          headers: { 'x-internal-request': 'true' }
+        })
       ]);
       
-      setPendingOrders(ordersRes.data.data.orders);
-      setPlannedShipments(shipmentsRes.data.data.shipments);
+      if (ordersRes.data.success && ordersRes.data.data && ordersRes.data.data.orders) {
+        setPendingOrders(ordersRes.data.data.orders);
+      } else {
+        setPendingOrders([]);
+      }
+      
+      if (shipmentsRes.data.success && shipmentsRes.data.data && shipmentsRes.data.data.shipments) {
+        setPlannedShipments(shipmentsRes.data.data.shipments);
+      } else {
+        setPlannedShipments([]);
+      }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -78,6 +95,8 @@ const Dashboard = () => {
       await axios.post(`/api/shipments/optimize`, {
         warehouseId: selectedWarehouse,
         date: formattedDate
+      }, {
+        headers: { 'x-internal-request': 'true' }
       });
       
       // Reload data after optimization

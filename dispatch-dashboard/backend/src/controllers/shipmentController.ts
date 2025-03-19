@@ -23,8 +23,10 @@ export const getAllShipments = async (req: Request, res: Response) => {
   
   // Extract and validate query parameters
   if (req.query.status) filters.status = req.query.status as string;
-  if (req.query.driver_id) filters.driver_id = req.query.driver_id as string;
-  if (req.query.vehicle_id) filters.vehicle_id = req.query.vehicle_id as string;
+  if (req.query.driver_id) filters.driver_id = parseInt(req.query.driver_id as string, 10);
+  if (req.query.truck_id) filters.truck_id = parseInt(req.query.truck_id as string, 10);
+  if (req.query.trailer_id) filters.trailer_id = parseInt(req.query.trailer_id as string, 10);
+  if (req.query.origin_warehouse_id) filters.origin_warehouse_id = parseInt(req.query.origin_warehouse_id as string, 10);
   if (req.query.start_date) filters.start_date = new Date(req.query.start_date as string);
   if (req.query.end_date) filters.end_date = new Date(req.query.end_date as string);
   
@@ -43,7 +45,7 @@ export const getAllShipments = async (req: Request, res: Response) => {
 export const getShipment = async (req: Request, res: Response) => {
   const { id } = req.params;
   
-  const shipment = await getShipmentById(id);
+  const shipment = await getShipmentById(parseInt(id, 10));
   
   if (!shipment) {
     throw new ApiError('Shipment not found', 404);
@@ -61,7 +63,7 @@ export const getShipment = async (req: Request, res: Response) => {
 export const getShipmentDetails = async (req: Request, res: Response) => {
   const { id } = req.params;
   
-  const shipmentDetails = await getShipmentWithDetails(id);
+  const shipmentDetails = await getShipmentWithDetails(parseInt(id, 10));
   
   if (!shipmentDetails) {
     throw new ApiError('Shipment not found', 404);
@@ -83,22 +85,24 @@ export const createNewShipment = async (req: Request, res: Response) => {
     throw new ApiError(validation.message || 'Invalid shipment data', 400);
   }
   
-  // Check if order exists and is in 'pending' status
-  const order = await getOrderById(req.body.order_id);
-  if (!order) {
-    throw new ApiError('Order not found', 404);
+  // Check if truck exists and is active
+  const truck = await getVehicleById(req.body.truck_id);
+  if (!truck) {
+    throw new ApiError('Truck not found', 404);
   }
-  if (order.status !== 'pending') {
-    throw new ApiError('Order is already assigned or completed', 400);
+  if (truck.status !== 'active') {
+    throw new ApiError('Truck is not active', 400);
   }
   
-  // Check if vehicle exists and is active
-  const vehicle = await getVehicleById(req.body.vehicle_id);
-  if (!vehicle) {
-    throw new ApiError('Vehicle not found', 404);
-  }
-  if (vehicle.status !== 'active') {
-    throw new ApiError('Vehicle is not active', 400);
+  // Check if trailer exists and is active (if provided)
+  if (req.body.trailer_id) {
+    const trailer = await getVehicleById(req.body.trailer_id);
+    if (!trailer) {
+      throw new ApiError('Trailer not found', 404);
+    }
+    if (trailer.status !== 'active') {
+      throw new ApiError('Trailer is not active', 400);
+    }
   }
   
   // Check if driver exists and is active
@@ -125,29 +129,39 @@ export const updateExistingShipment = async (req: Request, res: Response) => {
   const { id } = req.params;
   
   // Check if shipment exists
-  const existingShipment = await getShipmentById(id);
+  const existingShipment = await getShipmentById(parseInt(id, 10));
   if (!existingShipment) {
     throw new ApiError('Shipment not found', 404);
   }
   
-  // If changing status to 'in_transit', ensure actual_departure is provided
-  if (req.body.status === 'in_transit' && !req.body.actual_departure && !existingShipment.actual_departure) {
-    req.body.actual_departure = new Date();
+  // If changing status to 'IN_TRANSIT', ensure actual_start_time is provided
+  if (req.body.status === 'IN_TRANSIT' && !req.body.actual_start_time && !existingShipment.actual_start_time) {
+    req.body.actual_start_time = new Date();
   }
   
-  // If changing status to 'completed', ensure actual_arrival is provided
-  if (req.body.status === 'completed' && !req.body.actual_arrival && !existingShipment.actual_arrival) {
-    req.body.actual_arrival = new Date();
+  // If changing status to 'DELIVERED', ensure actual_completion_time is provided
+  if (req.body.status === 'DELIVERED' && !req.body.actual_completion_time && !existingShipment.actual_completion_time) {
+    req.body.actual_completion_time = new Date();
   }
   
-  // If changing vehicle or driver, verify they exist and are active
-  if (req.body.vehicle_id) {
-    const vehicle = await getVehicleById(req.body.vehicle_id);
-    if (!vehicle) {
-      throw new ApiError('Vehicle not found', 404);
+  // If changing truck or trailer, verify they exist and are active
+  if (req.body.truck_id) {
+    const truck = await getVehicleById(req.body.truck_id);
+    if (!truck) {
+      throw new ApiError('Truck not found', 404);
     }
-    if (vehicle.status !== 'active') {
-      throw new ApiError('Vehicle is not active', 400);
+    if (truck.status !== 'active') {
+      throw new ApiError('Truck is not active', 400);
+    }
+  }
+  
+  if (req.body.trailer_id) {
+    const trailer = await getVehicleById(req.body.trailer_id);
+    if (!trailer) {
+      throw new ApiError('Trailer not found', 404);
+    }
+    if (trailer.status !== 'active') {
+      throw new ApiError('Trailer is not active', 400);
     }
   }
   
@@ -161,7 +175,7 @@ export const updateExistingShipment = async (req: Request, res: Response) => {
     }
   }
   
-  const updatedShipment = await updateShipment(id, req.body);
+  const updatedShipment = await updateShipment(parseInt(id, 10), req.body);
   
   res.status(200).json({
     status: 'success',
@@ -176,17 +190,17 @@ export const deleteExistingShipment = async (req: Request, res: Response) => {
   const { id } = req.params;
   
   // Check if shipment exists
-  const existingShipment = await getShipmentById(id);
+  const existingShipment = await getShipmentById(parseInt(id, 10));
   if (!existingShipment) {
     throw new ApiError('Shipment not found', 404);
   }
   
   // Don't allow deleting completed shipments
-  if (existingShipment.status === 'completed') {
+  if (existingShipment.status === 'DELIVERED') {
     throw new ApiError('Cannot delete completed shipments', 400);
   }
   
-  await deleteShipment(id);
+  await deleteShipment(parseInt(id, 10));
   
   res.status(204).json({
     status: 'success',
@@ -204,7 +218,7 @@ export const getDriverShipments = async (req: Request, res: Response) => {
     throw new ApiError('Driver not found', 404);
   }
   
-  const shipments = await getDriverActiveShipments(driverId);
+  const shipments = await getDriverActiveShipments(parseInt(driverId, 10));
   
   res.status(200).json({
     status: 'success',
@@ -233,12 +247,12 @@ export const updateShipmentStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
   
-  if (!status || !['planned', 'in_transit', 'completed', 'cancelled'].includes(status)) {
+  if (!status || !['PLANNED', 'LOADING', 'LOADED', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'].includes(status)) {
     throw new ApiError('Invalid status value', 400);
   }
   
   // Check if shipment exists
-  const existingShipment = await getShipmentById(id);
+  const existingShipment = await getShipmentById(parseInt(id, 10));
   if (!existingShipment) {
     throw new ApiError('Shipment not found', 404);
   }
@@ -246,15 +260,15 @@ export const updateShipmentStatus = async (req: Request, res: Response) => {
   const updateData: any = { status };
   
   // Automatically set timestamps based on status changes
-  if (status === 'in_transit' && !existingShipment.actual_departure) {
-    updateData.actual_departure = new Date();
+  if (status === 'IN_TRANSIT' && !existingShipment.actual_start_time) {
+    updateData.actual_start_time = new Date();
   }
   
-  if (status === 'completed' && !existingShipment.actual_arrival) {
-    updateData.actual_arrival = new Date();
+  if (status === 'DELIVERED' && !existingShipment.actual_completion_time) {
+    updateData.actual_completion_time = new Date();
   }
   
-  const updatedShipment = await updateShipment(id, updateData);
+  const updatedShipment = await updateShipment(parseInt(id, 10), updateData);
   
   res.status(200).json({
     status: 'success',

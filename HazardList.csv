@@ -1,0 +1,286 @@
+Hazard PK,Hazard Code,Description1,Description2,Description3
+23,4,"UN3017, Organophosphorous Pesticides, Liquid,","Toxic, Flammable (Chlorpyrifos, Aromatic Naphtha)","Class 6.1 (3), PG III"
+28,7,"UN1993, Flammable Liquids, N.O.S.",(Xylenes) Malathion,"Class 3, PG III"
+29,8,"UN2902, Environmentally Hazadous Substances","Liquid, N.O.S (2,4-D Ester)","Class 6.1, PG III"
+30,9,"UN2902, Pesticides, Liquid, Toxic, N.O.S.",(Bromoxynil Solution),"Class 6.1, PG III"
+32,11,"UN1325, Flammable Solids, N.O.S.",(50% Benomyl),"Class 4.1, PG II"
+33,12,"UN2902, Pesticides, Liquid, Toxic, N.O.S.",(Bromoxynil),"Class 6.1, PG III"
+36,15,"UN2922, Pesticides, Liquid, Toxic, N.O.S.",(Bromoxynil),"Class 6.1, PG III"
+38,119,"UN2783, Organophosphorous Pesticides, Solid, Toxic",(Terbufos),"Class 6.1, PG III"
+39,17,"UN2903, Organophosphorous Pesticides, Solid,","Toxic, N.O.S. (Terbufos)","Class 6.1 (3), PG III"
+40,18,"UN1993, Flammable Liquids, N.O.S.",(Xylene),"Class 3, PG II"
+45,19,"UN2902, Pesticides, Liquid, Toxic, N.O.S.",(5% Deltamethrin),"Class 6.1, PG III"
+47,20,"UN2903, Pesticides, Liquid, Toxic, Flammable,","N.O.S. (Deltamethrin, Xylene)","Class 6.1 (3), PG III"
+48,21,"UN3018, Organophosphorous Pesticides, Liquid,","Toxic, N.O.S. (Trichlorfon)","Class 6.1, PG III"
+49,22,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+50,23,"UN2992, Carbamate Pesticides, Liquid, Toxic",(Carbofuran),"Class 6.1, PG II"
+51,24,"UN3016, Bipyridylium Pesticides, Liquid,","Toxic, N.O.S. (Paraquat Solution)","Class 6.1, PG III"
+53,26,"UN1993, Flammable Liquids, N.O.S.",(Xylene),"Class 3, PG III"
+55,28,"UN3017, Organophosphorous Pesticides, Liquid,","Toxic, Flammable, (Dimethoate, Cyclohexanone)","Class 6.1 (3), PG III"
+56,29,"UN2902, Pesticides, Liquid, Toxic, N.O.S.",(Glufosinate-Ammonium),"Class 6.1, PG III"
+59,32,"UN1993, Flammable Liquids, N.O.S.",(Xylenes) Malathion,"Class 3, PG II"
+60,33,"UN3352, Pyrethroid Pesticide, Liquid, Toxic,",(Lambda-cyhalothrin),"Class 6.1, PG III"
+61,34,"UN2902, Pesticides, Liquid, Toxic, N.O.S.",(Bromoxynil),"Class 6.1, PG III"
+64,35,"UN2790, Acetic Acid Solution",.,"Class 8, PG II"
+65,30,"UN1760, Corrosive Liquids, N.O.S.",(Contains Diquat Dibromide 37.3 W/W),"Class 8, PG III"
+69,39,"UN2903, Pesticides, Liquid, Toxic, Flammable,","N.O.S.(Deltamethrin, Xylene)","Class 6.1 (3), PG III"
+70,40,"UN3077, Environmentally Hazardous Substances,","Solid, N.O.S. (Lindane)","Class 9.2, PG III"
+74,41,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+81,43,"UN2902, Pesticides, Liquid, Toxic, N.O.S.","(Lindane, Thiram)","Class 6.1, PG III"
+82,38,"UN2783, Organophosphorous Pesticides, Solid,","Toxic, N.O.S. (Terbufos)","Class 6.1, PG III"
+83,45,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+85,47,"UN2757, Carbamate Pesticides, Solid, Toxic, N.O.S.",(Carbofuran),"Class 6.1, PG III"
+87,48,"UN2902, Pesticides, Liquid,Toxic,N.O.S.",(Bromoxynil),"Class 6.1, PG III"
+88,49,"UN2902, Pesticides, Liquid,Toxic,N.O.S.","(Bromoxynil Ester, Petroleum Distillates)","Class 6.1, PG III"
+93,50,"UN1805, Corrosive Liquids, N.O.S.",(Phosphoric Acid),"Class 8, PG III"
+107,51,"UN1824, Sodium Hydroxide Solution","Class 8, PG II",.
+108,52,"UN3077, Environmentally Hazardous Substances,","Solid, N.O.S. (Lindane, Diazinon, Captan Mixture)","Class 9.2, PG III"
+109,53,"UN1993, Flammable Liquids, N.O.S.   (Contains",Substituted Benzenoid Hydrocarbons & 50%,"Permethrin, Class 3, PG III"
+110,54,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+111,133,"UN3077, Environmentally Hazardous Substances,","Solid, N.O.S. (Cyanazine Mixture)","Class 9.2, PG II"
+113,132,"UN2998, Triazine Pesticides, Liquid, Toxic, N.O.S.",(Cyanazine),"Class 6.1, PG III"
+115,58,"UN3077, Environmentally Hazardous Substances,","Solids, N.O.S. (2,4-D Acid)","Class 9.2, PG III"
+116,59,"UN2773, Phthalimide Derivative Pesticides, Solid,","Toxic, N.O.S. (Captan Mixture)","Class 6.1, PG III"
+117,60,"UN1993, Flammable Liquids, N.O.S.",(Contains Isopropanol),"Class 3, PG III"
+118,61,"UN1993, Flammable Liquids, N.O.S. (Contains",Substituted Benzenoid Hydrocarbons Cypermethrin),"Class 3, PG III"
+119,62,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+120,63,"UN2810, Posinous Liquids, N.O.S",(Tallow Fatty Acid Amine Ethoxylate),"Class 6.1, PG III"
+121,64,"UN3265, Corrosive Liquids, Acidic, Organic, N.O.S.",(Ethephon),"Class 8, PG III"
+122,65,"UN3018, Organophosphorous Pesticides, Liquid,","Toxic, N.O.S. (Azinphos-Methyl)","Class 6.1, PG II"
+123,66,"UN2758, Carbamate Pesticides, Liquid, Flammable,","Toxic, N.O.S. (24% Methomyl in Methonal)","Class 3 (6.1), PG II"
+124,67,"UN2757, Carbamate Pesticides, Solid, Toxic, N.O.S.",(90% Methomyl),"Class 6.1, PG II"
+125,68,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+126,69,"UN3077, Environmentally Hazardous Substances,","Solids, N.O.S. (Simazine)","Class 9.2, PG III"
+127,70,"UN2783, Organophosphorous Pesticides, Solid, Toxic",(Phorate),"Class 6.1, PG III"
+128,71,"UN2995, Organochlorine Pesticides, Liquid,","Toxic,Flammable, N.O.S. (Endosulfan, Xylene)","Class 6.1 (3), PG III"
+129,72,"UN2761, Organochlorine Pesticides, Solid, Toxic,",N.O.S. (50% Endosulfan) *Marine Pollutant*,"Class 6.1, PG III"
+130,73,"UN3077, Environmentally Hazardous Substances,","Solid, N.O.S. (Thiram)","Class 9.2, PG III"
+131,74,"UN2902, Pesticides, Liquid, Toxic, N.O.S.","(Bromoxynil, 2,4-D Ester)","Class 6.1, PG III"
+132,75,"UN2927, Poison, Liquid, Corrosive","Class 8, PG II",.
+133,76,"UN1397, Aluminum Phosphide","Class 4.3 (6.1), PG I",4 X Placard 4.3
+134,77,"UN2902, Pesticides, Liquid, Toxic, N.O.S.",(Deltamethrin),"Class 6.1, PG III"
+135,78,"UN2996, Organochlorine, Pesticides, Toxic, N.O.S.","(Lindane, Thiram)","Class 6.1, PG III"
+137,5000,"UN3265, Corrosive, Liquid, Acidic, N.O.S.",((2-Chloroethyl) Phosphonic Acid),"Class 8, PG III"
+138,80,"UN2757, Carbamate Pesticides, Solid, Toxic, N.O.S.",(Carbaryl),"Class 6.1, PG III"
+139,126,"UN2761, Organochlorine Pesticides, Solid, Toxic,",N.O.S. (Endosulfan),"Class 6.1, PG III"
+140,82,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+141,83,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+142,84,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+143,85,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+144,86,"UN3018, Organophosphorous Pesticws, Liquid,","Toxic, N.O.S. (Phosalone)","Class 6.1, PG III"
+145,87,"UN2757, Carbamate Pesticides, Solid, Toxic, N.O.S.",(Bendiocarb),"Class 6.1, PG III"
+153,90,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+157,124,"UN3264, Corrosive, Liquid, Acidic, Inorganic,",N.O.S. (Phosphoric Acid),"Class 8, PG III"
+158,93,"UN1760, Corrosive, Liquid, N.O.S.","(Sodium Hydroxide 1,2 Benzisothiazolin_3_One)","Class 8, PG II"
+159,100,"UN2922, Corrosive Liquid, Toxic, N.O.S.",(Paraquat Solution),"Class 8 (6.1), PG III"
+160,94,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+161,46,"UN2757, Carbamate Pesticides, Solid, Toxic, N.O.S.",(Pirimicarb Mixture),"Class 6.1, PG III"
+162,16,"UN2783, Organophosphorous Pesticides, Solid,","Toxic, N.O.S. (Terbufos)","Class 6.1, PG I"
+163,25,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+164,92,"UN3266, Corrosive, Liquid, Acidic, Inorganic,",N.O.S. (Pentapotassium Triphosphate),"Class 8, PG III"
+165,27,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+166,95,"UN3018, Organophosphorous Pesticide, Liquid, Toxic",",N.O.S. (Methamidophos)","Class 6.1, PGII"
+167,44,"UN2783, Organophosphorous Pesticides, Solid,","Toxic, N.O.S. (Azinphos-Methyl)","Class 6.1, PG II"
+168,123,"UN1760, Corrosive, Liquid, N.O.S.",(Amine Mixture),"Class 8, PG III"
+169,56,"UN2998, Triazine Pesticides, Liquid, Toxic, N.O.S.",(Cyanazine),"Class 6.1, PG III"
+170,121,"UN1384, Residue Last Contained      ERAP # 2 -1636",Sodium Dithionite (Spontaneously combustible),"Class 4.2, PG II"
+173,97,"UN1866, RESIN SOLUTION, Flammable","Class 3, PG III",.
+175,98,"UN1090, Acetone","Class 3, PG II",.
+177,79,"UN2586, Arylsulphonic Acid, Liquid","Class 8, PG III",.
+178,57,"UN1993, Flammable Liquids, N.O.S.",(Methyl Alcohol),"Class 3, PG III"
+180,99,"UN1230, Methanol","Class 3 (6.1), PG II",.
+181,127,"UN2995, Organochlorine Pesticides, Solid, Toxic,","N.O.S. (Endosulfan, Xylene)","Class 6.1 (3), PG III"
+182,122,Residue Last Contained,.,.
+184,96,"UN1384, ERP  2 -1564",Sodium Dithionite (Spontaneously combustible),"Class 4.2, PG II"
+185,31,"Un2902, Pesticides, Liquid, Toxic, N.O.S.","(Tebuconazole, Thiram)","Class 6.1, PG III"
+192,102,"UN2810, Toxic Liquid, Organic, N.O.S.",(contains tetramethylammonium chloride),"Class 6.1, PG III"
+193,203,"UN1992, Flammable Liquid, Toxic, N.O.S.",(contains isopropanol),"Class 3, PG II"
+194,104,"UN1494, Sodium Bromate","Class 5.1, PG II",.
+195,205,"UN1444, Ammonium Persulfate Mixture","Class 5.1, PG III",.
+196,106,"UN1219, Isopropanol Solution","Class 3, PG II",.
+197,103,"UN1993, Flammable Liquid, Toxic, N.O.S.",(contains isopropanol),"Class 3, PG II"
+198,204,"UN1993, Flammable Liquid, N.O.S.",(contains isopropanol),"Class 3, PG III"
+199,105,"UN1993, Flammable Liquid, N.O.S.",(contains ethanol),"Class 3, PG III"
+200,206,"UN1993, Flammable Liquid, N.O.S.",(contains methanol),"Class 3, PG III"
+201,208,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.",(contains dodecylbenzene sulfonic acid),"Class 8, PG III"
+202,108,"UN3262, Corrosive Solid, Basic, Inorganic, N.O.S.",(sodium metasilicate),"Class 8, PG II"
+203,109,"UN1779, Formic Acid Solution","Class 8, PG II",.
+204,110,"UN1993, Flammable Liquid, N.O.S.","(contains heptane, xylene)","Class 3, PG II"
+205,111,"UN3267, Corrosive Liquid, Basic, Organic, N.O.S.",(contains tetrasodium EDTA),"Class 8, PG III"
+206,112,"UN1992, Flammable Liquid, Toxic, N.O.S.",(contains methanol and propargyl alcohol),"Class 3 (6.1), PG II"
+208,113,"UN1823, Sodium Hydroxide, Solid","Class 8, PG II",.
+209,114,"UN2920, Corrosive Liquid, Flammable, N.O.S.","(Formic Acid, Isopropanol)","Class 8 (3), PG II"
+210,115,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+211,216,"UN1813, Potassium Hydroxide, Solid","Class 8, PG II",.
+212,117,"UN2586, Arylsulphonic Acids, Liquid","Class 8, PG III",.
+213,118,"UN3267, Corrosive Liquid, Basic, Organic, N.O.S.",(Ethylenediaminetetraacetic Acid Tetrasodium Salt),"Class 8, PG III"
+214,120,"UN3077, Environmentally Hazardous Substance","Solid, NOS (Mancozeb)","Class 9, PG III"
+215,125,"UN3265, Corrisive Liquid, Acidic, Organic",N.O.S.(Ethephon),"Class 8, PG II"
+216,128,"UN2586, Alkysulphonic Acids, Solution","Class 8, PG III",.
+217,207,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.","(Benezene,1,1' Oxybis-,Tetrapropylene Derivatives,","Sulfonate, Class 8, PG II"
+218,13,"UN3055, 2-(2-Aminoethoxy) Ethanol","Class 8, PG III",.
+219,107,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.",(Hydroxyethandiphosphonic Acid),"Class 8, PG II"
+220,36,"UN2051, 2-Dimethylaminoethanol","Class 8, PG II",.
+221,55,"UN2491, Ethanolamine","Class 8, PG III",.
+222,134,"UN1791, Hypochlorite Solution","Class 8, PG III",.
+223,81,"UN2031, Nitric Acid","Class 8, PG II",.
+224,209,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.","(Amino, Tri(Methylene Phosphoric Acid)","Class 8, PG III"
+225,116,"UN1814, Potassium Hydroxide, Solution","Class 8, PG III",.
+226,130,"UN2902, Pesticides. Liquid, Toxic, N.O.S.",(Bromoxynil),"Calss 6.1, PGIII"
+227,135,"UN3266, Corrosive, Liquid,Basic Inorganic N.O.S.",(Potassium Carbonate),"Class 8, PG III"
+229,140,"UN1805, Phosphoric Acid,",Liquid,"Class 8, PG III"
+231,210,"UN3266, Corrosive Solid, Basic, Inorganic, N.O.S.",(sodium hydroxide),"Class 8, PG III"
+233,220,"UN1463, Chromium Trioxide, anhydrous,mixutre","Class 5.1(8), PG II",.
+239,217,"UN2734, Amines, Liquid, Corrosive, Flammable,","N.O.S, Cyclohexylamine, Ethanolamine,","Methoxypropylamine, Class 8, (3), PG II"
+240,230,"UN2789, Acetic Acid, Glacial","Class 8(3),",.PGII
+247,300,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.","(2-Phosphono-1,2,4-Butanetricarboxylic Scid)","Class 8, PG III"
+248,302,"UN3264, Corrosive Liquid, Acidic, Inorganic,",N.O.S. (Aluminum Chloride Hydroxide Sulphate),"Class 8, PG III"
+249,159,"UN1903, Disinfectant Liquid Corrosive",(Quaternary Ammonium Compound),"Class 8, PG II"
+250,303,"UN1819, Sodium Aluminate Solution","Class 8, PG II",.
+252,304,"UN3266, Corrosive Liquid, Basic, Inorganic, N.O.S.","(Sodium Hydroxide, Alkaline Liquid Bromine Antimic","Class 8, PG II"
+254,305,"UN2920, Corrosive Liquid, Flammable, N.O.S.","(Cyclohexylamine, Diethylaminoethanol, Morpholine","Class 8, (3), PG II"
+255,301,"UN2734, Amines, Liquid, Corrosive, Flammable,","N.O.S. (Methoxypropylamine, Cyclohexylamine)","Class 8, (3), PG II"
+256,306,"UN2922, Corrosive Liquid, Toxic, N.O.S.","(Sodium Hydroxide, Sodium Nitrite)","Class 8, (6.1), PG III"
+257,307,"UN2693, Bisuplhites, Aqueous Solution, N.O.S.",(Sodium Bisulfite),"Class 8, PG III"
+258,308,"UN1824, Sodium Hydroxide Solution","Class 8, PG II",.
+259,309,"UN2734, Amines, Liquid, Corrosive, Flammable,","N.O.S, (Cyclohexylamine, Diethylaminoethanol,","Morpholine), Class 8, (3),  PG II"
+261,310,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.",(Glutaraldehyde),"Class 8, PG II"
+262,311,"UN1719, Caustic Alkali Liquid, N.O.S.","(Sodium Hydroxide, Potassium Hydroxide)","Class 8, PG II"
+263,312,"UN2735, Amines, Liquid, Corrosive, N.O.S.",(Morpholine),"Class 8, PG II"
+264,313,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.",(Isothiazolinone Microbiocide),"Class 8, PG II"
+265,314,"UN1719, Caustic Akali Liquid, N.O.S.",(Sodium Tolyltriazole),"Class 8, PG II"
+266,467,"UN1307, Xylenes",Class 3,PG III
+268,315,"UN3264, Corrosive Liquid, Acidic, Inorganic,","N.O.S. (Zinc Chloride, Hydrochloric Acid,","Phosphoric Acid, Class 8, PG III"
+270,316,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.","(Maleic Anhydride, Polymer)","Class 8, PG III"
+273,318,"UN3265, Corrosive Liquid, Acidic, Inorganic,","N.O.S. (Phosphoric Acid, Zinc Chloride)","Class 8, PG III"
+274,319,"UN3267, Corrosive Liquid, Basic, Organic, N.O.S.",(Sodium Tolyltriazole),"Class 8, PG III"
+275,320,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.","(2, 2-Dibromo-3-Nitrilopropionamide)","Class 8, PG III"
+276,321,"UN2734, Amines, Liquid, Corrosive, Flammable,","N.O.S, (Cyclohexylamine, Morpholine)","Class 8, (3), PG II"
+277,322,"UN3267, Corrosive, Liquid, Basic, Organic, N.O.S.","(Sodium-2-Mercaptobenzo-Thiazole,","Sodium Tolyltriazole)  Class 8, PG III"
+279,323,"UN1805, Phosphoric Acid, Liquid, Solution","Class 8, PG III",.
+280,324,"UN1805, Phosphoric Acid Solution","Class 8, PG III",.
+281,325,"Oxidizing Solid, Corrosive, N.O.S.   (1-Bromo-3-","Chloro-5,5,-Dimethylhydantoin,1,3-Dichloro-5,",", 5-Dimethylhydantoin)  Class 5.1, (8), PG II"
+282,326,"UN3264, Corrosive Liquid, Acidic, Inorganic,","N.O.S. (Phosphoric Acid, Sulfuric Acid)","Class 8, PG III"
+283,327,"UN3084, Corrosive Solid, Oxidizing, N.O.S.","(Sodium Hydroxide, Sodium Nitrite)","Class 8, (5.1), PG II"
+287,477,"UN3017, Organophosphorous Pesticides, Liquid,","Toxic, Flammable, (Dimethoate)","Class 6.1 (3), PG III MARINE POLLUTANT"
+288,487,"UN3018, Organophosphorous Pesticides, Liquid,","Toxic, N.O.S. (Chlorpyrifos)","Class 6.1, PG III Marine Pollutant"
+290,480,"UN3264, Corrosive Liquid, Acidic, Inorganic,","N.O.S. (Phosphoric Acid, Tolytriazole)","Class 8, PG III"
+293,470,"UN1993, Flammable Liquid, N.O.S.",(1-Hexanol),"Class 3, PG III"
+294,481,"UN3262, Corrosive Solid,Basic, Inorganic",N.O.S. (Sodium Metasilcate Anhydrous),"Class 8, PG II"
+295,429,"UN3264, Corrosive Liquid,Acidic,Inorganic, NOS",(Containers chromic acid/methance disulfuric acid),"Class 8, PG III"
+296,221,"UN1760, Corrosive Liquid N.O.S.","(Citric Acid, Copper Sulfate)","Class 8, PG III"
+297,214,"UN3253, Disodium Trioxosificate","Class 8, PG III",.
+298,136,"UN3264, Corrosive Liquid, Acidic, NOS",(Contains Nitric Acid/Phosphoric Acid),"Class 8, PGII"
+299,137,"UN2924, Flammable Liquid, Corrisive NOS",(Contains sopropyl Alchohol/Hydrochloric Acid),"Class3 (8), PG II"
+305,328,"UN1759, Corrosive Solid N.O.S.",(Contains Sodoium Hydroxide),"Class 8, PG III"
+307,138,"UN1755, Chromic Acid Solution","Class 8, PG II",.
+309,139,"Residue Last Contained, UN2902,","Pesticides, Liquid, Toxic, N.O.S.(Bromoxynil)","Class 6.1, PG III"
+310,141,"Residue Last Contained, UN2902 Pesticides, Liquid,","Toxic, N.O.S(Glufosinate-Ammonium)","Class 6.1, PG III"
+312,142,"Residue Last Contained, UN1760, Corrosive","Liquids, N.O.S. (Contains Diquat","Dibromide 37.3 W/W), Class 8, PG III"
+313,143,"UN3265, Corrosive Liquid, Acidic, Organic, N.O.S.","Chromium trioxide, Acetic Acid","Class 8, PG II"
+314,144,"UN3087, Oxidizing Solid, Toxic, N.O.S.","Chromium trioxide, Class 5.1(6.1)",PG II
+316,145,"UN3265, Corrosive Liquid, Acidic, Organic N.O.S.","Formic Acid, Methylene Chloride","Class 8, PG II"
+317,146,"UN1564, Barium Conpound N.O.S.",Barium Carbonate Class 6.1,PG III
+318,147,"UN3085, Oxidizing Golid, Corrisive, N.O.S.",Chromium trioxide,"Class 5.1(8), PG II"
+319,148,"UN1778, Fluorsilicic Acid Solution","Class 8, PG II",.
+320,149,"UN1823, Sodium Hydroxide, Solid, mixture","Class 8, PG II",.
+321,151,"UN1463, Chromium Trioxide, anhydrous","Class 5.1(8), PG II",.
+322,152,"UN3287, Toxic Liquid, Inorganic, N.O.S.",Nickel (II) chloride,"Class 6.1, PGIII"
+323,153,"UN2810, Toxic Liquid, Organic, N.O.S.","3-Hexyne-2,5-DIOL","Class 6.1, PG III"
+324,154,"UN3288, Toxic Solid, Inorganic, N.O.S.",Nickel (II) Chloride hexahydrate,"Class 6.1, PGIII"
+326,157,"UN3087, Oxidizing Solid, Corrosive, N.O.S.","Chromium trioxide, Potassoim dichromate","Class 5.1(8), PG II"
+327,489,"UN1719, Caustic Akali Liquid, N.O.S.",(Sodium Benzotrizole),"Class 8, PG III"
+328,150,"UN3264, Corrosive Liquid, Acidic, Inorganic,",N.O.S. (Polualuminum Chloride),"Class 8, PG III"
+329,156,"UN1993, Flammable, Liquid, N.O.S.","(Isopropanal, Ethanol)","Class3, PGIII"
+331,158,"UN1268, Petrolem Distillates, N.O.S.",Combustible Liquid,"Class 3, PGIII"
+332,160,"UN3266, Corrosive Liquid, Basic, Inorganic, N.O.S.",(sodium metasilicate),"Class 8, PG III"
+333,161,"UN1903, Disinfectant Liquid Corrosive",N.O.S.,"Class 8, PG II"
+334,165,"UN1505, Sodium Persulphate","Class 5.1, PG III",.
+335,162,"UN1993, Flammable Liquids, N.O.S.",(Ethylbenzene Xylene),"Class 3, PG III"
+336,163,"UN2924, Flammable Liquid, Corrisive N.O.S","(Substituted aromatic amine,substituded alkylamine","Class3 (8), PG III"
+337,164,"UN3214, Permanganates, inorganic, aqueous solution","N.O.S. Class 5.1, PGII",.
+339,167,"UN2924, Flammable Liquid, Corrisive N.O.S",(Isopropanol 1-(2-Hydroxyethyl)-2-Tall oil-2-,"Imidazoline)Class3 (8), PG III"
+340,169,"UN1992, Flammable Liquid, Toxic, N.O.S.","(methanol,isopropanol,diethyl ether)","Class 3(6.1), PG II"
+341,172,"UN1325, Flammable Solids Organic Solid, N.O.S.",(Thiammethoxam),"Class 4.1, PG III"
+342,171,"UN1813, Potassium Hydroxide, Solid, Mixture","Class 8, PG II",.
+343,174,"UN1830, Corrosive Liquid, Toxic, N.O.S.",(Sulfuric Acid),"Class 8, PG II"
+344,175,"UN1805, Phosphoric Acid Solution, Corrisive","Class 8, PG III",.
+345,176,"UN1719, Caustic Akali Liquid, N.O.S.",Corrosive,"Class 8, PG III"
+346,177,"UN1992, Residue Last Contained Flammable Liquid,","Toxic, N.O.S (methanol,isopropanol,diethyl ether)","Class 3(6.1), PG II"
+347,14,"UN2902, Pesticide, Liquid, Toxic N.O.S.",(Abamectin Solution),"Class 6.1, PGIII"
+348,168,"UN1760, Corrosive, Liquid, N.O.S.",(Monocarbamide Dihydrogensulfate),"Class 8, PGIII"
+349,173,"UN3266, Corrosive Liquid, Acidic, Inorganic,",N.O.S. (Alkylbenzene Sulfonic Acid),"Class 8, PG II"
+350,401,"UN1487, Potassium Nitrate & Sodium Nitrate Mixture","Class 5.1, PGII",.
+358,500,"UN1212, Isobutanol Solution","Class 3, PGIII",.
+360,468,"UN3077, Environmentally Hazardous Substances,","Solid, N.O.S. (LINURON 50%)","Class 9, PG III"
+363,498,"UN2053, Methylisobutyl Carbinol","Class 3, PG III",.
+366,1111,"UN1993, Flammable Liquid, N.O.S.","Butanol, Petroleum Napthia","Class 3, PG III"
+369,9998,"UN1212, Isobutamul Alcohol",Class 3,PG III
+370,155,"UN3077, Environmentally Hazardous Substances,","Solid, N.O.S. (Thifensulfuron-methyl; Tribenuron-","methyl), Class 9,PG III Marine Pollutant"
+372,9991,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+374,8989,"UN2902, Pesticides, Liquid, Toxic, N.O.S.(Contains","Solvent Napatha,Pyraclostrobin, Metconazole)","Class 6.1, PGIII"
+378,1000,"UN1823, Sodium Hydroxide, Solid","Class 8, PG III",.
+383,89,"UN2902, Pesticide, Liquid, Toxic, N.O.S.","contains Pryaclostrobin, Fluxapyroxad","Class 6.1, PGIII"
+384,8990,"UN2902, Pesticides, Liquid, Toxic, N.O.S.(Contains","Solvent NAPHTHA,PYRAclostrobin","Class 6, PGIII"
+388,37,"UN1760, Corrosive Liquids, N.O.S.",(Diquat Dibromide),"Class 8, PG III"
+389,789,"UN2586, Alkysulphonic Acids, Liquid","Class 8, PG III",.
+390,42,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+392,392,"UN3018, Organophosphorous Pesticides, Liquid,","Toxic, (Chlorpyrifos)","Class 6.1, PG III"
+395,1255,"UN3017, Residue Last Contained Organophosphorous","Pesticide, Liquid, Toxic Flammable (Chlorpyrifos,","Aromatic Naphtha) Class 6.1 (3), PG III"
+401,222,"UN1760, Corrosive Liquid N.O.S.",(Chlormequat Chloride),"Class 8, PG III"
+403,888,"UN1993, Flammable Liquids, N.O.S.",(Xylene Range Aromatic Solvent),"Class 3, PG III"
+404,555,"UN1993, Flammable Liquids, N.O.S.",(aromatic hydrocardons Permethrin),"Class 3, PG III"
+414,556,"UN1915, Cyclohexanone",.,"Class 3, PG III"
+418,935,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+422,399,"UN3092, Environmentally Hazardous Substances,","LiquidN.O.S.(Alkylbenzene Sulphonate, Naphthalene)","Class 9, PG III"
+424,600,"UN2902, Pesticide, Liquid, Toxic, N.O.S.","(Bromoxynil, Pyraflufen-ethyl)",Class 6.1 PG III
+425,201,Shipped in accordance with:,Marine Pollutant Exemption,1.45.1 for Documentation & Safety Marks
+426,202,"UN3077, Environmentally Hazardous Substance","Solid, N.O.S (Trifluralin)","Class9, PG III"
+427,426,"UN2902, Residue Last Contained Pesticide, Liquid","Toxic, N.O.S. (Contains Solvent, Naphtha,","Pyraclostrobin, Metconazole) Class 6.1 PG III"
+428,427,"UN2902, Residue Last Contained Pesticide, Liquid","Toxic, N.O.S. (Contains Solvent, Naphtha,","Pyraclostrobin) Class 6.1, PG III"
+429,601,"UN2902, Pesticide, Liquid, Toxic, N.O.S.",(Contains Pyraclostrobin),"Class 6.1, PGIII"
+430,3229,"UN3229, Self-Reactive Liquid",Type F (Dimethoate),"Class 4.1, PGII, Marine Pollutant, RQ"
+431,4000,Shipped in accordance with:,Class 3 Flammable Liquids General Exemption,1.33 for Documentation and Safety Marks
+432,4001,"UN3082, Environmentally Hazardous Substance, N.O.S","(fluroxypyr-meptyl),Marine Pollutant,Class 9,PGIII",1.45.1 for Documentation & Safety Marks
+433,4002,"UN3082, Environmentally Hazardous Substance,Liquid"," N.O.S, (Bromoxynil, Thiencarbazone-Methyl)","Class 9,PGIII"
+434,4003,"UN3082, Environmentally Hazardous Substance,","NOS (Fenoxaprop-p-Ethyl, Bromoxynil Solution)",1.45.1 for Documentation & Safety Marks
+435,4004,"UN1760, Corrosive Liquid, N.O.S.",(Phosphate Ester),"Class 8, PG II"
+436,4005,"UN3082, Environmentally Hazardous Substance, N.O.S","(E-Methyl Solution), Marine Pollutant","Class 9, PGIII"
+437,4006,"UN2902, Residue Last Continued, Pesticides, Liquid","Toxic, N.O.S.(Glufosinate-Ammonium)","Class 6.1, PG III"
+438,4007,"UN3082, Environmentally Hazardous Substance, N.O.S",(Imazamox),"Class 9, PGIII"
+439,4008,"UN2902, Pesticide,  Liquid","Toxic, N.O.S.(Contains Solvent NAPHTHA)","PYRAclostrobin 12%,metconazole7%)Class 6.1, PGIII"
+440,4009,"UN3264, Corrosive Liquid, Acidic, Inorganic",N.O.S. (Phosphoric Acid),"Class 8, PG III"
+441,4010,"UN3082, Enviromentally Hazardous Substance, Liquid","N.O.S (Pydiflumetofen & Propisonazole),","Class 9, P.G. III"
+442,4011,"UN3082, Environmentally Hazardous Substance,Liquid","N.O.S. (Difenoconazole), Marine Pollutant","Class 9, P.G. III"
+443,4012,"UN3082, Environmentally Hazardous Substance,Liquid","N.O.S (2,4-D ester, Pyraflufen-ethyl)","Class 9, P.G. III, Marine Pollutant"
+444,4013,"UN3082, Environmentally Hazardous Substance,Liquid",N.O.S. (Halauxifen-methyl),"Class 9, P.G. III"
+445,4014,"UN3082, Environmentally Hazardous Substance,Liquid",N.O.S. (Chlorothalonil),"Class 9 P.G. III, Marine Pullotant"
+446,4015,"UN3082, Environmentally Hazardous Substance,Liquid",N.O.S. (Clothianidin),Class 9 P.G. III
+447,4016,"UN3082, Environmentally Hazardous Substance,Liquid",N.O.S. (Solvent Naptha),"Class 9 P.G. III, Marine Pollutant"
+448,4017,"UN3082, Environmentally Hazardous Substance,Liquid",N.O.S. (Flumioxazin),"Class 9 P.G. III, Marine Pollutant"
+449,4018,"UN2902, Residue Last Continued, Pesticides, Liquid","Toxic, N.O.S.(Glufosinate-Ammonium)","Class 6.1, PG III"
+450,4019,"UN2902, Pesticides, Liquid, Toxic, N.O.S.",(Glufosinate-Ammonium),"Class 6.1, PG III"
+451,4020,"UN3265, Corrosive, Liquid, Acidic, N.O.S.",((2-Chloroethyl) Phosphonic Acid),"Class 8, PG III"
+452,4021,Shipped in Accordance With:,Limited Quantities Exemption 1.17 for,Documentation & Safety Marks
+453,4022,"UN3082, Environmentally Hazardous Substance,Liquid",N.O.S. (Flupyradifurone Solution),Class 9 P.G. III
+454,4023,"UN3082, Environmentally Hazardous Substance,Liquid",N.O.S (Clodinafop-propargyl),Class 9 P.G. III
+455,4024,"UN3082, Environmentally Hazardous Substance,Liquid","N.O.S (Azoxystrobin, Tebuconazole)",Class 9 P.G. III
+456,4025,"UN3082, Environmentally Hazardous Substance,Liquid",N.O.S. (Tralkoxydim),Class 9 P.G. III
+457,4026,"UN3082, Environmentally Hazardous Substance,Liquid","N.O.S. (Cupric Sulfate, Pentahydrate)",Class 9 P.G. III
+458,4027,"UN3082, Environmentally Hazardous Substance,Liquid",N.O.S. (Trinexapac-ethyl),Class 9 P.G. III
+459,4028,"UN1993, Flammable Liquid, N.O.S.","(Hydrocarbon Solvent & 1,2,4-Trimethylbenzene)","Class 3 P.G III, Marine Pollutant"
+460,4029,"UN2802, Corrosive Liquid",Copper Chloride,Class 8 P.G. III
+461,4030,"UN1993, Flammable Liquid, N.O.S.","(Deltamethrin, Solvent Naptha (Petroleum)",Light Aromatic) Class 3 P.G. III
+462,4031,"UN1760, Corrosive Liquid N.O.S.","(Phosphoric acid, Zink)","Class 8, PG II"
+463,4032,"UN3082, Environmentally Hazardous Substance,Liquid","N.O.S. (2,4-D Ester, bromoxynil, fluroxypyr)","Class 9, PG III"
+464,4033,"UN3077, Environmentally Hazardous Substance","N.O.S. (Metribuzin, Solid)","Class 9, PG III"
+465,4034,"UN1993, Flammable Liquids, N.O.S.",(Naphthalene),"Class 3, PG III"
+466,4035,"UN2902, Pesticides, Liquid, Toxic, N.O.S.","(Bromoxynil, Pyraflufen-ethyl)","Class 6.1, III, Marine Pollutant"
+467,4036,"UN2902, Pesticide, Liquid, Toxic, N.O.S.",(contains Glufosinate),"Class 6.1, PG III"
+468,4037,"UN1760, Corrosive Liquid N.O.S.",(Copper Sulphate),"Class 8, PG III"
+469,4038,"UN3082, Environmentally Hazardous Substance,Liquid","N.O.S. (contains Prothioconazole, Metconazole)","Class 9, PG III"
+470,4039,"UN3082, Environmentally Hazardous Substance,Liquid","N.O.S. (Fenoxaprop-P-Ethyl, Solvent Naphtha)","Class 9, PG III"
+471,4040,"UN2927, Toxic Liquid, Corrosive, Organic",N.O.S. (Diquat Dibromide),"Class 6.1 (8), PGII"
+472,4047,HEAT REQUIRED/PROTECT FROM FREEEZE,,
+473,4048,"UN2902, Pesticide, Liquid, Toxic, N.O.S.","(BROMOXYNIL, NAPTHALENE)","Class 6.1, PG III, Marine Pollutant"
+,,,,

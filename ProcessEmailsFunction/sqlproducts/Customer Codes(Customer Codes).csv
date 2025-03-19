@@ -1,0 +1,21 @@
+Code,Customer ,Notes
+1100,BAYER,Roundup Finished Goods
+1150,BAYER,Roundup Empties
+1700,IPCO,IPCO Finished Goods
+1701,IPCO,IPCO Empties
+1911,BAYER,Production Parts
+1930,BAYER,Bayer Seed
+1940,BAYER,Bayer Chem
+1941,BAYER,Bayer Packaging Items and Pallets for 1942
+1942,BAYER,Bayer Empties
+2219,BASF,BASF Specialties
+2525,Sipcam,Sipcam
+2760,Cargill,Cargill Finished Goods
+2902,BASF,BASF Empties
+2903,BASF,BASF Seed
+2909,BASF,BASF Finished Goods
+2931,BASF,"BASF Packaging (Labels, storage)"
+2990,BASF,Production Parts/Washing
+2999,BASF,BASF Specialties
+3000,Federated Co-operatives Ltd.,FCL Finished Goods
+3343,Gowan,Gowan Finished Goods

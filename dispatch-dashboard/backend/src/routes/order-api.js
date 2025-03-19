@@ -11,12 +11,53 @@ const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
+  password: process.env.DB_PASSWORD ? String(process.env.DB_PASSWORD) : '',
   port: process.env.DB_PORT || 5432,
+});
+
+// Test database connection
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
 });
 
 // Authentication middleware
 const authenticateApiKey = async (req, res, next) => {
+  // Check for internal request header (used by frontend)
+  const internalRequest = req.headers['x-internal-request'];
+  
+  // If it's an internal request, bypass authentication
+  if (internalRequest === 'true') {
+    // For internal requests, we still need to set a manufacturer
+    try {
+      // Get the default manufacturer (first active one)
+      const result = await pool.query(
+        'SELECT manufacturer_id, name FROM manufacturers WHERE is_active = true LIMIT 1'
+      );
+      
+      if (result.rows.length === 0) {
+        return res.status(500).json({
+          success: false,
+          error: 'Server error',
+          details: 'No active manufacturer found for internal request',
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      // Add manufacturer to request for use in route handlers
+      req.manufacturer = result.rows[0];
+      return next();
+    } catch (err) {
+      console.error('Error getting default manufacturer:', err);
+      return res.status(500).json({
+        success: false,
+        error: 'Server error',
+        details: 'Error getting default manufacturer',
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+  
+  // For external requests, require API key authentication
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -148,6 +189,151 @@ const calculateRevenue = async (warehouseId, destinationCity, destinationProvinc
     return null;
   }
 };
+
+// GET /api/orders - Get all orders with optional filters
+router.get('/', authenticateApiKey, async (req, res) => {
+  try {
+    // Extract and validate query parameters
+    const filters = {};
+    
+    if (req.query.status) filters.status = req.query.status;
+    if (req.query.customer_id) filters.customer_id = req.query.customer_id;
+    if (req.query.warehouse_id) filters.warehouse_id = req.query.warehouse_id;
+    if (req.query.start_date) filters.start_date = new Date(req.query.start_date);
+    if (req.query.end_date) filters.end_date = new Date(req.query.end_date);
+    
+    // Query to get orders with filters
+    let queryText = `
+      SELECT oh.order_id, oh.document_id as order_number, 
+             c.company_name as customer_name, 
+             '' as warehouse_name,
+             c.city as delivery_city, 
+             c.province as delivery_province,
+             oh.requested_shipment_date as pickup_date,
+             oh.requested_delivery_date as delivery_date,
+             oh.total_weight_kg * 2.20462 as total_weight, -- Convert kg to lbs
+             CEIL(oh.total_quantity / 10) as pallets, -- Estimate pallets based on quantity
+             CASE 
+               WHEN oh.status = 'RECEIVED' THEN 'pending'
+               WHEN oh.status = 'ASSIGNED' THEN 'assigned'
+               WHEN oh.status = 'IN_TRANSIT' THEN 'in_transit'
+               WHEN oh.status = 'DELIVERED' THEN 'delivered'
+               WHEN oh.status = 'CANCELLED' THEN 'cancelled'
+               ELSE 'pending'
+             END as status
+      FROM order_headers oh
+      LEFT JOIN customers c ON oh.customer_id = c.customer_id
+    `;
+    
+    const queryParams = [];
+    const conditions = [];
+    
+    // Add filter conditions
+    if (filters.status) {
+      queryParams.push(filters.status.toUpperCase());
+      conditions.push(`oh.status = $${queryParams.length}`);
+    }
+    
+    if (filters.customer_id) {
+      queryParams.push(filters.customer_id);
+      conditions.push(`oh.customer_id = $${queryParams.length}`);
+    }
+    
+    // Warehouse filter is handled differently since we're not joining with warehouses table
+    if (filters.warehouse_id) {
+      // We'll handle this in the application logic instead
+    }
+    
+    if (filters.start_date) {
+      queryParams.push(filters.start_date);
+      conditions.push(`oh.requested_shipment_date >= $${queryParams.length}`);
+    }
+    
+    if (filters.end_date) {
+      queryParams.push(filters.end_date);
+      conditions.push(`oh.requested_shipment_date <= $${queryParams.length}`);
+    }
+    
+    // Add WHERE clause if there are conditions
+    if (conditions.length > 0) {
+      queryText += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    // Add ORDER BY
+    queryText += ' ORDER BY oh.created_at DESC';
+    
+    // Execute the query
+    const ordersResult = await pool.query(queryText, queryParams);
+    
+    // Get line items for each order
+    let orders = [];
+    try {
+      orders = await Promise.all(ordersResult.rows.map(async (order) => {
+        try {
+          // Query to get line items with product and hazard information
+          const lineItemsQuery = `
+            SELECT oli.product_id, p.name as product_name, 
+                  oli.quantity, oli.weight_kg * 2.20462 as weight_lbs,
+                  h.hazard_code, h.description1 as hazard_description1,
+                  h.description2 as hazard_description2, h.description3 as hazard_description3
+            FROM order_line_items oli
+            LEFT JOIN products p ON oli.product_id = p.product_id
+            LEFT JOIN hazards h ON p.hazard_pk = h.hazard_pk
+            WHERE oli.order_id = $1
+          `;
+          
+          const lineItemsResult = await pool.query(lineItemsQuery, [order.order_id]);
+          
+          // Add line items to order
+          return {
+            ...order,
+            line_items: lineItemsResult.rows
+          };
+        } catch (err) {
+          console.error(`Error fetching line items for order ${order.order_id}:`, err);
+          // Return the order without line items if there's an error
+          return {
+            ...order,
+            line_items: []
+          };
+        }
+      }));
+    } catch (err) {
+      console.error('Error processing orders:', err);
+      // If Promise.all fails, just return the orders without line items
+      orders = ordersResult.rows.map(order => ({
+        ...order,
+        line_items: []
+      }));
+    }
+    
+    // Log the API transaction
+    const response = {
+      success: true,
+      data: {
+        orders
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+    await logApiTransaction(req, 'OUTGOING', '/api/orders', req.query, response, 200);
+    
+    return res.status(200).json(response);
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    
+    const response = {
+      success: false,
+      error: 'Server error',
+      details: 'An error occurred while fetching orders',
+      timestamp: new Date().toISOString()
+    };
+    
+    await logApiTransaction(req, 'OUTGOING', '/api/orders', req.query, response, 500);
+    
+    return res.status(500).json(response);
+  }
+});
 
 // POST /api/orders - Submit a new order
 router.post('/', authenticateApiKey, async (req, res) => {

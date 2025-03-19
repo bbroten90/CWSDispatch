@@ -21,6 +21,10 @@ const customersRouter = require('./customers.js');
 const productsRouter = require('./products.js');
 // @ts-ignore - Ignore missing type declarations for JavaScript modules
 const hazardsRouter = require('./hazards.js');
+// @ts-ignore - Ignore missing type declarations for JavaScript modules
+const warehousesRouter = require('./warehouses.js');
+// @ts-ignore - Ignore missing type declarations for JavaScript modules
+const manufacturersRouter = require('./manufacturers.js');
 
 const router = express.Router();
 
@@ -39,6 +43,8 @@ router.use('/optimize', optimizeRouter);
 router.use('/customers', customersRouter);
 router.use('/products', productsRouter);
 router.use('/hazards', hazardsRouter);
+router.use('/warehouses', warehousesRouter);
+router.use('/manufacturers', manufacturersRouter);
 router.use('/reports', reportRouter);
 
 export default router;
